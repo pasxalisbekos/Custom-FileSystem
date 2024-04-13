@@ -294,16 +294,13 @@ void print_tree_recursive(dir_node* node, int depth) {
 ssize_t my_write(char* file_path, int fd, const void *buf, size_t count, int PID) {
     
     char* full_path = realpath(file_path,NULL);
+    printf("Operation on file: %s\nat %s\n",file_path,current_timestamp_as_string());
     if(full_path == NULL){
         printf("No such file or directory %s\n",full_path);
         return -1;
     }else{
         add_directory_to_tree(full_path);
-    }
-
-    
-    
-    
+    }    
     
     // Call the original write function
     ssize_t (*original_write)(int, const void *, size_t) = dlsym(RTLD_NEXT, "write");
