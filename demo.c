@@ -49,10 +49,19 @@ int main() {
 
 
     write_to_file(file_1);
+    sleep(5);
     write_to_file(file_2);
-    write_to_file(file_3);
-    write_to_file(file_4);
+    sleep(3);
     write_to_file(file_5);
+    sleep(10);
+    write_to_file(file_3);
+    sleep(9);
+    write_to_file(file_4);
+    sleep(1);
+    write_to_file(file_5);
+    sleep(8);
+    write_to_file(file_2);
+    sleep(2);
     write_to_file(file_6);
 
     fd = open(filename, O_RDONLY);

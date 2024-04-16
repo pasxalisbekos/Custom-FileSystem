@@ -17,17 +17,23 @@
 #define MAX_TIMESTAMP_LENGTH 20
 #define SHA256_DIGEST_LENGTH 32
 
+typedef struct snapshot {
+    
+    char* snapshot_path;
+    char* timestamp;
+    char* operation;
+    int PID;
+    struct snapshot* next;
+
+} snapshot;
+
 
 typedef struct file_node {
     
     char* file_name;
     char* file_hash;
     char* versions_path;
-    
-    // char* operations;
-    // int*  pids;
-    // char** timestamps;
-
+    struct snapshot* snapshot;
     struct file_node* next;
     
 } file_node;
@@ -63,8 +69,8 @@ char* replace_char(char* str, char find, char replace);
 // --------------------------------------------------------------------- FILE LIST FUNCTIONS --------------------------------------------------------------------- //
 void push(file_node** head_ref, char* file_name, char* absolute_path);
 void print_list(file_node* head);
-void create_snapshot(char* file_name, char* absolute_path);
-
+char* create_snapshot(char* file_name, char* absolute_path, char* timestamp);
+file_node* search_for_file_node(file_node* head, char* file_name);
 // --------------------------------------------------------------------- DIRECTORY FUNCTIONS --------------------------------------------------------------------- //
 void add_child(dir_node* parent, dir_node* child);
 void add_directory_to_tree(char* dir_name);
