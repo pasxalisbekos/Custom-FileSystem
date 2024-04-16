@@ -11,7 +11,8 @@
 #include <stdlib.h>
 #include <openssl/sha.h>
 #include <time.h>
-
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #define MAX_TIMESTAMP_LENGTH 20
 #define SHA256_DIGEST_LENGTH 32
@@ -58,11 +59,11 @@ char** str_split(char* file_path, const char delimeter);
 char *append_strings(char *start, char *add);
 char *sha256(const char *input);
 char* current_timestamp_as_string();
-
+char* replace_char(char* str, char find, char replace);
 // --------------------------------------------------------------------- FILE LIST FUNCTIONS --------------------------------------------------------------------- //
-void push(file_node** head_ref, char* file_name);
+void push(file_node** head_ref, char* file_name, char* absolute_path);
 void print_list(file_node* head);
-
+void create_snapshot(char* file_name, char* absolute_path);
 
 // --------------------------------------------------------------------- DIRECTORY FUNCTIONS --------------------------------------------------------------------- //
 void add_child(dir_node* parent, dir_node* child);
