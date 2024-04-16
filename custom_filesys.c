@@ -251,7 +251,7 @@ file_node* search_for_file_node(file_node* head, char* file_name){
  * @param file_name : The name of the file
  * @param absolute_path  : The absolute path to the file
  */
-void update_only_snapshot(snapshot** head, char* file_name, char* absolute_path){
+void update_only_snapshot(snapshot** head, char* file_name, char* absolute_path, int PID){
 
     snapshot* new_snapshot = (snapshot*)malloc(sizeof(snapshot));
     if (new_snapshot == NULL){
@@ -263,7 +263,7 @@ void update_only_snapshot(snapshot** head, char* file_name, char* absolute_path)
     char* snapshot_dir = create_snapshot(file_name,absolute_path,curr_timestamp);
     new_snapshot->snapshot_path = strdup(snapshot_dir);
     new_snapshot->timestamp = strdup(curr_timestamp);
-
+    new_snapshot->PID = PID;
     new_snapshot->next = *head;
     *head = new_snapshot;
 
@@ -276,7 +276,7 @@ void update_only_snapshot(snapshot** head, char* file_name, char* absolute_path)
  * @param file_name : The name of the file
  * @param absolute_path : The absolute path to the files
  */
-void push(file_node** head_ref, char* file_name, char* absolute_path) {
+void push(file_node** head_ref, char* file_name, char* absolute_path, int PID) {
     file_node* new_file = (file_node*)malloc(sizeof(file_node));
     if (new_file == NULL) {
         return;
@@ -298,6 +298,7 @@ void push(file_node** head_ref, char* file_name, char* absolute_path) {
     new_file->snapshot = (snapshot*)malloc(sizeof(snapshot));
     new_file->snapshot->snapshot_path = strdup(snapshot_dir);
     new_file->snapshot->timestamp = strdup(curr_timestamp);
+    new_file->snapshot->PID = PID;
     new_file->snapshot->next = NULL;
 
     new_file->next = *head_ref;
@@ -360,7 +361,7 @@ dir_node* create_dir_node(const char* dir_name) {
 
  * @param absolute_path : The absolute path to the file
  */
-void add_directory_to_tree(char* absolute_path) {
+void add_directory_to_tree(char* absolute_path,int PID) {
     // Tokenize the absolute path
     char* path_copy = strdup(absolute_path); // Duplicate the path to avoid modifying the original
     
@@ -425,10 +426,10 @@ void add_directory_to_tree(char* absolute_path) {
     file_node* temp = search_for_file_node(current_node->files_list, file);
     if (temp == NULL){
         // We found no file so add it to the list
-        push(&(current_node->files_list), file , absolute_path);
+        push(&(current_node->files_list), file , absolute_path, PID);
     } else {
         // We must only update the snapshots for this file
-        update_only_snapshot(&(temp->snapshot), file, absolute_path);
+        update_only_snapshot(&(temp->snapshot), file, absolute_path, PID);
         printf("%s\n",file);
     }
     free(path_copy); // Free the duplicated path
@@ -509,7 +510,7 @@ ssize_t my_write(char* file_path, int fd, const void *buf, size_t count, int PID
         printf("No such file or directory %s\n",full_path);
         return -1;
     }else{
-        add_directory_to_tree(full_path);
+        add_directory_to_tree(full_path,PID);
     }    
     
     // Call the original write function

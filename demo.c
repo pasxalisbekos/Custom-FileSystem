@@ -1,5 +1,6 @@
 
 #include "custom_filesys.h"
+#include "cleanup_daemon.h"
 
 void write_to_file(char* filename){
     
@@ -49,19 +50,19 @@ int main() {
 
 
     write_to_file(file_1);
-    sleep(5);
+    // sleep(5);
     write_to_file(file_2);
-    sleep(3);
+    // sleep(3);
     write_to_file(file_5);
-    sleep(10);
+    // sleep(10);
     write_to_file(file_3);
-    sleep(9);
+    // sleep(9);
     write_to_file(file_4);
-    sleep(1);
+    // sleep(1);
     write_to_file(file_5);
-    sleep(8);
+    // sleep(8);
     write_to_file(file_2);
-    sleep(2);
+    // sleep(2);
     write_to_file(file_6);
 
     fd = open(filename, O_RDONLY);
@@ -82,8 +83,9 @@ int main() {
 
     close(fd);
 
-    print_tree_recursive(directory_tree_head, 0);
+    // print_tree_recursive(directory_tree_head, 0);
 
+    list_sub_directories("/home/snapshots");
 
     return 0;
 }

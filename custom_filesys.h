@@ -67,13 +67,14 @@ char *sha256(const char *input);
 char* current_timestamp_as_string();
 char* replace_char(char* str, char find, char replace);
 // --------------------------------------------------------------------- FILE LIST FUNCTIONS --------------------------------------------------------------------- //
-void push(file_node** head_ref, char* file_name, char* absolute_path);
+void push(file_node** head_ref, char* file_name, char* absolute_path,int PID);
+void update_only_snapshot(snapshot** head, char* file_name, char* absolute_path, int PID);
 void print_list(file_node* head);
 char* create_snapshot(char* file_name, char* absolute_path, char* timestamp);
 file_node* search_for_file_node(file_node* head, char* file_name);
 // --------------------------------------------------------------------- DIRECTORY FUNCTIONS --------------------------------------------------------------------- //
 void add_child(dir_node* parent, dir_node* child);
-void add_directory_to_tree(char* dir_name);
+void add_directory_to_tree(char* dir_name,int PID);
 dir_node* create_dir_node(const char* dir_name);
 void print_tree_recursive(dir_node* node, int depth);
 
