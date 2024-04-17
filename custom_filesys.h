@@ -13,6 +13,8 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <cjson/cJSON.h> 
+
 
 #define MAX_TIMESTAMP_LENGTH 20
 #define SHA256_DIGEST_LENGTH 32
@@ -78,5 +80,9 @@ void add_directory_to_tree(char* dir_name,int PID);
 dir_node* create_dir_node(const char* dir_name);
 void print_tree_recursive(dir_node* node, int depth);
 
+// -------------------------------------------------------------------- TESTING PRESERVING TREE TO JSON ----------------------------------------------------
+
+cJSON* dir_tree_to_json(dir_node* root);
+void write_json_to_file(cJSON* json, const char* filename);
 
 #endif /* WRAPPER_LIBRARY_H */

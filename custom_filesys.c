@@ -1,5 +1,5 @@
 #include "custom_filesys.h"
-
+#include "log.h"
 
 dir_node* directory_tree_head = NULL;
 
@@ -506,10 +506,15 @@ void print_tree_recursive(dir_node* node, int depth) {
 ssize_t my_write(char* file_path, int fd, const void *buf, size_t count, int PID) {
     
     char* full_path = realpath(file_path,NULL);
+    
+    
     if(full_path == NULL){
         printf("No such file or directory %s\n",full_path);
         return -1;
     }else{
+        
+        log_write(PID, full_path);
+        
         add_directory_to_tree(full_path,PID);
     }    
     
@@ -520,7 +525,6 @@ ssize_t my_write(char* file_path, int fd, const void *buf, size_t count, int PID
 
 // Custom version of read
 ssize_t my_read(char* file_path, int fd, void *buf, size_t count, int PID) {
-    
 
     char* full_path = realpath(file_path,NULL);
     if(full_path == NULL){
@@ -535,14 +539,88 @@ ssize_t my_read(char* file_path, int fd, void *buf, size_t count, int PID) {
         printf("=============================================================================\n");
     }
 
-
-
-
-
-
-
-
     // Call the original read function
     ssize_t (*original_read)(int, void *, size_t) = dlsym(RTLD_NEXT, "read");
     return original_read(fd, buf, count);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Beta testing : To save the output to a JSON file
+
+cJSON* dir_tree_to_json(dir_node* root) {
+    cJSON* json_node = cJSON_CreateObject();
+    cJSON* files_array = cJSON_CreateArray();
+    cJSON* children_array = cJSON_CreateArray();
+
+    // Add directory name and hash to JSON object
+    cJSON_AddStringToObject(json_node, "dir_name", root->dir_name);
+    cJSON_AddStringToObject(json_node, "dir_hash", root->dir_hash);
+    file_node* file_ptr = root->files_list;
+    while (file_ptr != NULL) {
+        cJSON* file_json = cJSON_CreateObject();
+        cJSON_AddStringToObject(file_json, "file_name", file_ptr->file_name);
+        cJSON_AddStringToObject(file_json, "file_hash", file_ptr->file_hash);
+        // Add file JSON object to files array
+        cJSON_AddItemToArray(files_array, file_json);
+
+
+        cJSON* snapshots_array = cJSON_CreateArray();
+        snapshot* head = file_ptr->snapshot;
+        while(head != NULL){
+
+            cJSON* snapshot_json = cJSON_CreateObject();
+            cJSON_AddStringToObject(snapshot_json, "snapshot_path", head->snapshot_path);
+            cJSON_AddStringToObject(snapshot_json, "snapshot_timestamp", head->timestamp);   
+            cJSON_AddItemToArray(snapshots_array, snapshot_json);           
+
+            head = head->next;
+        }
+        cJSON_AddItemToObject(file_json, "snapshots", snapshots_array);
+
+        file_ptr = file_ptr->next;
+    }
+    cJSON_AddItemToObject(json_node, "files", files_array);
+
+    printf("%s\n",root->dir_name);
+    if (root->children != NULL){
+        for(int i = 0; root->children[i] != NULL; i++){
+            cJSON* child_json = dir_tree_to_json(root->children[i]);
+            cJSON_AddItemToArray(children_array, child_json);
+        }    
+    }
+    cJSON_AddItemToObject(json_node, "children", children_array);
+
+    return json_node;
+}
+
+void write_json_to_file(cJSON* json, const char* filename) {
+    FILE* fp = fopen(filename, "w");
+    if (fp == NULL) {
+        perror("Error opening file");
+        return;
+    }
+    char* json_str = cJSON_Print(json);
+    fprintf(fp, "%s", json_str);
+    fclose(fp);
+    free(json_str);
 }

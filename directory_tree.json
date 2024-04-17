@@ -1,0 +1,155 @@
+{
+	"dir_name":	"home",
+	"dir_hash":	"4ea140588150773ce3aace786aeef7f4049ce100fa649c94fbbddb960f1da942",
+	"files":	[],
+	"children":	[{
+			"dir_name":	"home",
+			"dir_hash":	"4ea140588150773ce3aace786aeef7f4049ce100fa649c94fbbddb960f1da942",
+			"files":	[],
+			"children":	[{
+					"dir_name":	"pbekos",
+					"dir_hash":	"464189a611d674a4ad2cabb4ec3b843a49ea62005d0458667602b33ce198ac99",
+					"files":	[{
+							"file_name":	"fail.txt",
+							"file_hash":	"16da8c8586573077b87346cb51fb50939e34c18cc5239132a9f67c9edc39892d",
+							"snapshots":	[{
+									"snapshot_path":	"/home/snapshots/5c79b4459c06dfadf49dfd99402b50b262549fe135d5694a4c4ed7b4420ffa75/2024-04-17_17:52:52_fail.txt",
+									"snapshot_timestamp":	"2024-04-17_17:52:52"
+								}, {
+									"snapshot_path":	"/home/snapshots/5c79b4459c06dfadf49dfd99402b50b262549fe135d5694a4c4ed7b4420ffa75/2024-04-17_17:52:21_fail.txt",
+									"snapshot_timestamp":	"2024-04-17_17:52:21"
+								}, {
+									"snapshot_path":	"/home/snapshots/5c79b4459c06dfadf49dfd99402b50b262549fe135d5694a4c4ed7b4420ffa75/2024-04-17_17:52:14_fail.txt",
+									"snapshot_timestamp":	"2024-04-17_17:52:14"
+								}, {
+									"snapshot_path":	"/home/snapshots/5c79b4459c06dfadf49dfd99402b50b262549fe135d5694a4c4ed7b4420ffa75/2024-04-17_17:51:43_fail.txt",
+									"snapshot_timestamp":	"2024-04-17_17:51:43"
+								}]
+						}, {
+							"file_name":	"pass.txt",
+							"file_hash":	"16ad84dad219e89c42bed23db78e9ca0011ec4704b44692457ed563717dc971b",
+							"snapshots":	[{
+									"snapshot_path":	"/home/snapshots/9b24f0a105528cc2fab1c1324299ebcf965dd35cc83114623604dd214175eb29/2024-04-17_17:52:16_pass.txt",
+									"snapshot_timestamp":	"2024-04-17_17:52:16"
+								}, {
+									"snapshot_path":	"/home/snapshots/9b24f0a105528cc2fab1c1324299ebcf965dd35cc83114623604dd214175eb29/2024-04-17_17:51:38_pass.txt",
+									"snapshot_timestamp":	"2024-04-17_17:51:38"
+								}]
+						}],
+					"children":	[{
+							"dir_name":	"Desktop",
+							"dir_hash":	"9bd88f2485acbb9426ad3dd9e06842ede8c7516d0ba8559298675f09419681fa",
+							"files":	[{
+									"file_name":	"100_websites_no_consent_fbpixel.txt",
+									"file_hash":	"3a00af1f55d408bb63079036e321af84a0474adb8477bfc07b0c5e771ae786d9",
+									"snapshots":	[{
+											"snapshot_path":	"/home/snapshots/54c2d65c069b44d07bdf36603f3e3bf21e31a573ced6ee28d9acb8ce0f4e3671/2024-04-17_17:52:43_100_websites_no_consent_fbpixel.txt",
+											"snapshot_timestamp":	"2024-04-17_17:52:43"
+										}, {
+											"snapshot_path":	"/home/snapshots/54c2d65c069b44d07bdf36603f3e3bf21e31a573ced6ee28d9acb8ce0f4e3671/2024-04-17_17:52:05_100_websites_no_consent_fbpixel.txt",
+											"snapshot_timestamp":	"2024-04-17_17:52:05"
+										}]
+								}],
+							"children":	[{
+									"dir_name":	"CSE506_OS",
+									"dir_hash":	"b7908def1d9a830344739f06ef1b70c3bf462b97ca5642ad1805d8645551fe57",
+									"files":	[],
+									"children":	[{
+											"dir_name":	"Custom-FileSystem",
+											"dir_hash":	"de1d526bbfc599293f278b2a7fda5580681f2925945ddca44c951fd7a4b88f2f",
+											"files":	[],
+											"children":	[{
+													"dir_name":	"dir_a",
+													"dir_hash":	"b6d84a8b4e027395fd6a4b659bf58b5230d0273fbd9f2d90754bf52de9802ed3",
+													"files":	[],
+													"children":	[{
+															"dir_name":	"dir_b",
+															"dir_hash":	"2f2927aa065cc1628710d6091eb2986970f6781697438b412b4b807f8b205b1e",
+															"files":	[],
+															"children":	[{
+																	"dir_name":	"dir_c",
+																	"dir_hash":	"7bcef8401b930e8b403775c052d640bcb9279b341cc0038cb4c1cfb709c2af01",
+																	"files":	[{
+																			"file_name":	"example.txt",
+																			"file_hash":	"e7cb632359a2be17c1008b50f9ec85691cd5d66834d5fe8f63ef65ceb06682ee",
+																			"snapshots":	[{
+																					"snapshot_path":	"/home/snapshots/d7ba7a6b4f5122f4fec9036d2ff4872eed5ce7ab7cbc7b56d8131e7e875b30f4/2024-04-17_17:51:38_example.txt",
+																					"snapshot_timestamp":	"2024-04-17_17:51:38"
+																				}]
+																		}],
+																	"children":	[]
+																}]
+														}]
+												}]
+										}]
+								}, {
+									"dir_name":	"rerun",
+									"dir_hash":	"1fae2d16b59d6f7805146bff66f1e5dd6d2746b633323a073e75381bd87bb198",
+									"files":	[],
+									"children":	[{
+											"dir_name":	"grader-s19",
+											"dir_hash":	"a88958a8d7117e618eed907d600554a4fbb05ad6447a11a7e7d4fe581c5bd0e3",
+											"files":	[{
+													"file_name":	"requirements.txt",
+													"file_hash":	"4d7c51b1efe9043e44439a949dfd92e5827321b34082903477fd04876edb7552",
+													"snapshots":	[{
+															"snapshot_path":	"/home/snapshots/7e04354c50564e4a22517fa5cf514b7a59d4c4534ffdbcb3bc5cfd829edb0939/2024-04-17_17:52:44_requirements.txt",
+															"snapshot_timestamp":	"2024-04-17_17:52:44"
+														}, {
+															"snapshot_path":	"/home/snapshots/7e04354c50564e4a22517fa5cf514b7a59d4c4534ffdbcb3bc5cfd829edb0939/2024-04-17_17:52:24_requirements.txt",
+															"snapshot_timestamp":	"2024-04-17_17:52:24"
+														}, {
+															"snapshot_path":	"/home/snapshots/7e04354c50564e4a22517fa5cf514b7a59d4c4534ffdbcb3bc5cfd829edb0939/2024-04-17_17:52:06_requirements.txt",
+															"snapshot_timestamp":	"2024-04-17_17:52:06"
+														}, {
+															"snapshot_path":	"/home/snapshots/7e04354c50564e4a22517fa5cf514b7a59d4c4534ffdbcb3bc5cfd829edb0939/2024-04-17_17:51:46_requirements.txt",
+															"snapshot_timestamp":	"2024-04-17_17:51:46"
+														}]
+												}],
+											"children":	[]
+										}]
+								}, {
+									"dir_name":	"test12",
+									"dir_hash":	"a98ec5c5044800c88e862f007b98d89815fc40ca155d6ce7909530d792e909ce",
+									"files":	[{
+											"file_name":	"test.txt",
+											"file_hash":	"a6ed0c785d4590bc95c216bcf514384eee6765b1c2b732d0b0a1ad7e14d3204a",
+											"snapshots":	[{
+													"snapshot_path":	"/home/snapshots/7593ab8d28116eadd93bf6d1985cbeb3d3c896d9c3c4acbfc4a7cffe33132d76/2024-04-17_17:52:54_test.txt",
+													"snapshot_timestamp":	"2024-04-17_17:52:54"
+												}, {
+													"snapshot_path":	"/home/snapshots/7593ab8d28116eadd93bf6d1985cbeb3d3c896d9c3c4acbfc4a7cffe33132d76/2024-04-17_17:52:16_test.txt",
+													"snapshot_timestamp":	"2024-04-17_17:52:16"
+												}]
+										}],
+									"children":	[]
+								}]
+						}, {
+							"dir_name":	"Documents",
+							"dir_hash":	"b4e929d8bcfe04189801a8ed61496d177d9e30d1b2826f4c9c4d00b3e705fa8b",
+							"files":	[],
+							"children":	[{
+									"dir_name":	"hw2-master",
+									"dir_hash":	"1f26b1ff3fa9f9b243d9962bca3a43a98c219431b7c709bbf9788062603ea5cf",
+									"files":	[],
+									"children":	[{
+											"dir_name":	"hw2",
+											"dir_hash":	"a8009ac2ea823d954bcdedfd9644a933059d959b8893bf2cc8860a885111d51f",
+											"files":	[{
+													"file_name":	"dtmf_in.txt",
+													"file_hash":	"664a295047f7747656cb720a7757617ff48b2a0c43aa73450c040b5667b5b4ff",
+													"snapshots":	[{
+															"snapshot_path":	"/home/snapshots/01387c9c3645fedd13a644e50ef93b6b9f1c74af05700ec2af76a15d5c3bfcc5/2024-04-17_17:52:34_dtmf_in.txt",
+															"snapshot_timestamp":	"2024-04-17_17:52:34"
+														}, {
+															"snapshot_path":	"/home/snapshots/01387c9c3645fedd13a644e50ef93b6b9f1c74af05700ec2af76a15d5c3bfcc5/2024-04-17_17:51:56_dtmf_in.txt",
+															"snapshot_timestamp":	"2024-04-17_17:51:56"
+														}]
+												}],
+											"children":	[]
+										}]
+								}]
+						}]
+				}]
+		}]
+}

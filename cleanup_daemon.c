@@ -69,7 +69,6 @@ void remove_old_files(char* directory_path, char* most_recent_snapshot) {
     closedir(dir);
 }
 
-
 void list_sub_directories(char *base_directory_path) {
     struct dirent *dp;
     DIR *dir = opendir(base_directory_path);
@@ -95,8 +94,6 @@ void list_sub_directories(char *base_directory_path) {
 
     closedir(dir);
 }
-
-
 
 char* list_files_in_directory(char *directory_path) {
     struct dirent *dp;
