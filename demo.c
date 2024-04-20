@@ -2,7 +2,7 @@
 #include "custom_filesys.h"
 #include "cleanup_daemon.h"
 #include "log.h"
-
+#include "operational.h"
 
 void write_to_file(char* filename){
     
@@ -24,7 +24,16 @@ void write_to_file(char* filename){
 }
 
 
+
+
 int main() {
+
+    
+    // char** lines = read_operations("./operations.txt");
+    // print_operations(lines);
+    // monitor_main("./operations.txt");
+    // return 0;
+
 
     init_spinlock();
 

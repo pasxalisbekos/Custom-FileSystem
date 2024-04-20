@@ -1,16 +1,22 @@
 #include "log.h"
 
 pthread_spinlock_t lock;
+int is_lock_initialized = 0;
 
 void init_spinlock() {
     pthread_spin_init(&lock, 0);
+    is_lock_initialized = 1;
 }
 
 void destroy_spinlock() {
     pthread_spin_destroy(&lock);
+    is_lock_initialized = 0;
 }
 
 void acquire_spinlock() {
+    if (!is_lock_initialized) {
+        init_spinlock();
+    }
     pthread_spin_lock(&lock);
 }
 
@@ -21,7 +27,7 @@ void release_spinlock() {
 void log_write(int pid, char* file_path) {
     char log_message[256];
     snprintf(log_message, sizeof(log_message), "Process with PID: %d performed a write operation on file: %s\n", pid, file_path);
-
+    
     acquire_spinlock();
     int log_fd = open(LOG_FILE, O_WRONLY | O_CREAT | O_APPEND, 0644);
     if (log_fd == -1) {
