@@ -129,3 +129,35 @@ char* list_files_in_directory(char *directory_path) {
 
     return most_recent_snapshot;
 }
+
+
+void init_cleanup_daemon(int flag ,unsigned int time){
+
+    unsigned int seconds;
+    switch(flag) {
+        case 0:
+            printf("Flag is set to seconds [%u]\n", time);
+            sleep(time);
+            break;
+        case 1:
+            printf("Flag is set to hours [%u]\n", time);
+            seconds = time * 3600;
+            sleep(seconds);
+            break;
+        case 2:
+            printf("Flag is set to days [%u]\n", time);
+            seconds = time * 24 * 3600;
+            sleep(seconds);
+            break;
+        case 3:
+            printf("Flag is set to months [%u] (?)\n", time);
+            seconds = time * 30 * 24 * 3600;
+            sleep(seconds);
+            break;
+        default:
+            printf("Flag is unrecognised [%d]. Switching to default timelapse of 2 hours for cleanup\n",flag);
+    }
+
+    list_sub_directories("/home/snapshots");
+
+}

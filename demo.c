@@ -39,12 +39,12 @@ int main() {
 
     char *filename = "./dir_a/dir_b/dir_c/example.txt";
     char *filename2 = "./dir_a/dir_b/dir_c/example2.txt";
-    char *file_1 = "/home/pbekos/pass.txt";
-    char *file_2 = "/home/pbekos/fail.txt";
-    char *file_3 = "/home/pbekos/Documents/hw2-master/hw2/dtmf_in.txt";
-    char *file_4 = "/home/pbekos/Desktop/100_websites_no_consent_fbpixel.txt";
-    char *file_5 = "/home/pbekos/Desktop/rerun/grader-s19/requirements.txt";
-    char *file_6 = "/home/pbekos/Desktop/test12/test.txt";
+    char *file_1 = "/home/maryam/pass.txt";
+    char *file_2 = "/home/maryam/fail.txt";
+    char *file_3 = "/home/maryam/Documents/hw2-master/hw2/dtmf_in.txt";
+    char *file_4 = "/home/maryam/Desktop/100_websites_no_consent_fbpixel.txt";
+    char *file_5 = "/home/maryam/Desktop/rerun/grader-s19/requirements.txt";
+    char *file_6 = "/home/maryam/Desktop/test12/test.txt";
     int fd = open(filename, O_CREAT | O_WRONLY, 0644);
     if (fd == -1) {
         perror("Error opening file");
@@ -111,36 +111,16 @@ int main() {
         return 1;
     }
 
-    printf("Read from file: %s\n", buffer);
+    // printf("Read from file: %s\n", buffer);
 
     close(fd);
-
 
     // list_sub_directories("/home/snapshots");
 
     destroy_spinlock();
-    // print_tree_recursive(directory_tree_head,0);
 
-    cJSON* json_tree = dir_tree_to_json(directory_tree_head);
+    int y = try_to_access_json(getpid());
 
-    // Write JSON to file
-    write_json_to_file(json_tree, "/home/snapshots/directory_tree.json");
-
-    // Free cJSON object
-    cJSON_Delete(json_tree);
-
-    // directory_tree_head = NULL;
-    // // Construct the directory tree
-    // printf("=========================================================================\n");
-    // dir_node* temp = construct_tree("directory_tree.json",getpid());
-    // printf("=========================================================================\n");
-   
-    
-    // print_tree_recursive(directory_tree_head, 0);
-
-    // cJSON* json_tree2 = dir_tree_to_json(directory_tree_head);
-
-    // // Write JSON to file
-    // write_json_to_file(json_tree2, "directory_tree2.json");
+    int x = extract_tree_to_json();
     return 0;
 }

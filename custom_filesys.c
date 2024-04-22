@@ -137,7 +137,6 @@ char* current_timestamp_as_string() {
     struct tm* time_info;
     static char timestamp[MAX_TIMESTAMP_LENGTH];
 
-    // Get the current time
     time(&current_time);
     time_info = localtime(&current_time);
 
@@ -432,7 +431,7 @@ void add_directory_to_tree(char* absolute_path,int PID) {
     } else {
         // We must only update the snapshots for this file
         update_only_snapshot(&(temp->snapshot), file, absolute_path, PID);
-        printf("%s\n",file);
+        // printf("%s\n",file);
     }
     free(path_copy); // Free the duplicated path
 }
@@ -489,9 +488,9 @@ void print_tree_recursive(dir_node* node, int depth) {
     printf("|_ DIR: [%s]\n", node->dir_name,node->dir_hash);
     file_node* head = node->files_list;
     // Print files
-    if(head != NULL){
-        print_list(head);
-    }
+    // if(head != NULL){
+    //     print_list(head);
+    // }
     // Recursively print children
     if (node->children != NULL) {
         int i = 0;
@@ -515,8 +514,9 @@ ssize_t my_write(char* file_path, int fd, const void *buf, size_t count, int PID
         return -1;
     }else{
         if(directory_tree_head == NULL){
-            printf("NOTHING TO THE TREE YET\n");
-            construct_tree("/home/snapshots/directory_tree.json", PID);
+            // printf("NOTHING TO THE TREE YET\n");
+            // construct_tree("/home/snapshots/directory_tree.json", PID);
+            try_to_access_json(PID);
         }
         
         log_write(PID, full_path);
@@ -592,7 +592,7 @@ cJSON* dir_tree_to_json(dir_node* root) {
     }
     cJSON_AddItemToObject(json_node, "files", files_array);
 
-    printf("%s\n",root->dir_name);
+    // printf("%s\n",root->dir_name);
     if (root->children != NULL){
         for(int i = 0; root->children[i] != NULL; i++){
             cJSON* child_json = dir_tree_to_json(root->children[i]);
@@ -639,10 +639,10 @@ void construct_tree(char* file_path, int PID) {
     char** paths = get_absolute_paths_from_json(file_path, &count);
     
     if (paths) {
-        printf("Absolute Paths:\n");
+        // printf("Absolute Paths:\n");
         for (int i = 0; i < count; i++) {
-            printf("%s\n", paths[i]);
-            // free(paths[i]); // Free memory allocated for each path
+            // printf("%s\n", paths[i]);
+            // free(paths[i]);
             add_directory_to_tree(paths[i],PID);
         }
         free(paths); // Free memory allocated for paths array
@@ -669,9 +669,7 @@ void collect_absolute_paths(cJSON* json_node, char*** paths, int* count) {
             cJSON* file_item = cJSON_GetArrayItem(files_array, i);
             cJSON* absolute_path = cJSON_GetObjectItem(file_item, "absolute_path");
             if (absolute_path) {
-                // Reallocate memory for paths array
                 *paths = realloc(*paths, (*count + 1) * sizeof(char*));
-                // Allocate memory for the absolute path string
                 (*paths)[*count] = strdup(absolute_path->valuestring);
                 (*count)++;
             }
@@ -701,14 +699,12 @@ char** get_absolute_paths_from_json(char* filename, int* count) {
     *count = 0;
     char** paths = NULL;
 
-    // Open the JSON file
     FILE* file = fopen(filename, "r");
     if (!file) {
         printf("Error opening JSON file\n");
         return NULL;
     }
 
-    // Read JSON data from the file
     fseek(file, 0, SEEK_END);
     long file_size = ftell(file);
     fseek(file, 0, SEEK_SET);
@@ -723,19 +719,98 @@ char** get_absolute_paths_from_json(char* filename, int* count) {
 
     // Parse JSON string
     cJSON* root = cJSON_Parse(json_string);
-    free(json_string); // Free the allocated memory for JSON string
+    free(json_string);
     fclose(file);
 
     if (!root) {
-        printf("Error parsing JSON: %s\n", cJSON_GetErrorPtr());
+        printf("Error parsing JSON: %s| %s\n", cJSON_GetErrorPtr(),filename);
         return NULL;
     }
 
-    // Call recursive function to collect absolute paths
     collect_absolute_paths(root, &paths, count);
 
     // Cleanup
     cJSON_Delete(root);
 
     return paths;
+}
+
+
+int try_to_access_json(int PID){
+    
+    
+    int fd = open("/home/snapshots/directory_tree.json", O_RDWR | O_CREAT, 0644);
+    if (fd == -1) {
+        return -1;
+    }
+
+    int spin_attempts = 0;
+    int lock_acquired = 0;
+    
+    while (!lock_acquired && spin_attempts < MAX_SPIN_ATTEMPTS) {
+        if (flock(fd, LOCK_EX | LOCK_NB) == 0) {
+            lock_acquired = 1;
+        } else {
+            // Failed to acquire lock, continue spinning
+            spin_attempts++;
+        }
+    }
+
+    if (!lock_acquired) {
+        return -1;
+    }
+
+    construct_tree("/home/snapshots/directory_tree.json", PID);
+    // Release the lock
+    if (flock(fd, LOCK_UN) == -1) {
+        return -1;
+    }
+
+    close(fd);   
+
+
+    return 0;
+}
+
+
+
+int extract_tree_to_json(){
+    
+    int fd = open("/home/snapshots/directory_tree.json", O_RDWR | O_CREAT, 0644);
+    if (fd == -1) {
+        return -1;
+    }
+
+    int spin_attempts = 0;
+    int lock_acquired = 0;
+    
+    while (!lock_acquired && spin_attempts < MAX_SPIN_ATTEMPTS) {
+        // Attempt to acquire an exclusive lock
+        if (flock(fd, LOCK_EX | LOCK_NB) == 0) {
+            lock_acquired = 1;
+        } else {
+            // Failed to acquire lock, continue spinning
+            spin_attempts++;
+        }
+    }
+
+    if (!lock_acquired) {
+        // Max spin attempts reached without acquiring the lock
+        return -1;
+    }
+
+    cJSON* json_tree = dir_tree_to_json(directory_tree_head);
+
+    write_json_to_file(json_tree, "/home/snapshots/directory_tree.json");
+
+
+
+    // Release the lock
+    if (flock(fd, LOCK_UN) == -1) {
+        return -1;
+    } 
+
+    close(fd);   
+
+    return 0;
 }

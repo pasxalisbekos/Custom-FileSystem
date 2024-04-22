@@ -18,6 +18,7 @@
 
 #define MAX_TIMESTAMP_LENGTH 20
 #define SHA256_DIGEST_LENGTH 32
+#define MAX_SPIN_ATTEMPTS 10000
 
 typedef struct snapshot {
     
@@ -86,4 +87,8 @@ void write_json_to_file(cJSON* json, const char* filename);
 void construct_tree(char* file_path, int PID);
 void collect_absolute_paths(cJSON* json_node, char*** paths, int* count);
 char** get_absolute_paths_from_json(char* filename, int* count);
+int try_to_access_json(int PID);
+int extract_tree_to_json();
+
+
 #endif /* WRAPPER_LIBRARY_H */
