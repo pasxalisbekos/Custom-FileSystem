@@ -1,7 +1,7 @@
-# Custom File System Implementation README
+# Custom File System
 
 ## Overview
-Our custom user-level C application facilitates read/write operations on files within a custom file system while preserving their contents and recording all operations in a tree-like data structure representing the system's state. This README provides an overview of our implementation and its key features.
+Our custom user-level C application facilitates read/write operations on files within a custom file system while preserving their contents and recording all operations in a tree-like data structure representing the system's state.
 
 ## Features
 
@@ -21,7 +21,7 @@ Our custom user-level C application facilitates read/write operations on files w
 - **Implementation**:
     - For every file node, a list of snapshots includes paths to copies of its original contents.
     - Snapshot filenames follow the format "filename_timestamp.txt", where timestamp is the UNIX timestamp of the operation time.
-    - Snapshots are stored in unique directories named using the SHA256 hash of the file's absolute path to ensure uniqueness.
+    - Snapshots are stored in unique directories names that are drafted using the SHA256 hash of the file's absolute path to ensure uniqueness.
 
 ### 4. Space Optimization
 - **Functionality**:
