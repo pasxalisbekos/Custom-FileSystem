@@ -1,4 +1,4 @@
-# Custom File System Implementation README
+# Custom File System
 
 ## Overview
 Our custom user-level C application facilitates read/write operations on files within a custom file system while preserving their contents and recording all operations in a tree-like data structure representing the system's state. This README provides an overview of our implementation and its key features.
