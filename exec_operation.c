@@ -4,54 +4,39 @@
 #include "operational.h"
 
 
+// void write_to_file(char* filename){
+    
+//     int fd = open(filename, O_CREAT | O_WRONLY, 0777);
+//     if (fd == -1) {
+//         perror("Error opening file");
+//         // return 1;
+//     }
+
+//     const char *str = "Hello, this is a custom write function!";
+//     ssize_t bytes_written = my_write(filename, fd, str, strlen(str), getpid());
+//     if (bytes_written == -1) {
+//         perror("Error writing to file");
+//         close(fd);
+//     }
+
+//     close(fd);
+    
+// }
 int main(int argc, char *argv[]) {
     
-    // random crash
-    srand(time(NULL));
+    init(getpid());
+
+    srand((unsigned int)time(NULL));
+
+    // Generate a random number between 0 and 10
+    int delay = rand() % 11; // rand() % (max + 1)
+
+    printf("Sleeping for %d seconds...\n", delay);
+    sleep(delay);
+
+    printf("Wake up!\n");
 
 
-    // FIRST THING TO DO IS SET UP THE SIGNAL HANDLER TO HANDLE CRASHES
-    handler_init();
-
-    // Initiallize the current path:
-    
-
-    // Check if the correct number of arguments are provided
-    if (argc < 2 || argc > 4) {
-        printf("Usage: %s operation [source_path] [destination_path]\n", argv[0]);
-        return 1;
-    }
-
-    // Extract operation, source, and destination from command-line arguments
-    char *operation = argv[1];
-    char *source = (argc >= 3) ? argv[2] : NULL;
-    char *destination = (argc == 4) ? argv[3] : NULL;
-
-    // Check if operation is WRITE 
-    if (strcmp(operation, "WRITE") == 0 && source != NULL && destination != NULL) {
-        update_curr_path(destination);
-        printf("Operation: %s\nSource: %s\nDestination: %s\n", operation, source, destination);
-        copy_file(source,destination);
-    }
-    // Check if operation is READ 
-    else if (strcmp(operation, "READ") == 0 && source != NULL && destination == NULL) {
-        update_curr_path(source);
-        printf("Operation: %s\nSource: %s\n", operation, source);
-    }
-    // Invalid combination of arguments
-    else {
-        printf("Invalid combination of arguments\n");
-        return 1;
-    }
-
-    int randomNum = rand() % 10 + 1;
-    if (randomNum == 5) {
-            int* ptr = NULL;
-            *ptr = 42;
-    }
-
-    // Verified that the handlers work
-    // int* ptr = NULL;
-    // *ptr = 42; // This will cause a segmentation fault
+    end(getpid());
     return 0;
 }

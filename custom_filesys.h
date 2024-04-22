@@ -34,6 +34,7 @@ typedef struct file_node {
     
     char* file_name;
     char* file_hash;
+    char* absolute_path;
     char* versions_path;
     struct snapshot* snapshot;
     struct file_node* next;
@@ -79,10 +80,10 @@ void add_child(dir_node* parent, dir_node* child);
 void add_directory_to_tree(char* dir_name,int PID);
 dir_node* create_dir_node(const char* dir_name);
 void print_tree_recursive(dir_node* node, int depth);
-
 // -------------------------------------------------------------------- TESTING PRESERVING TREE TO JSON ----------------------------------------------------
-
 cJSON* dir_tree_to_json(dir_node* root);
 void write_json_to_file(cJSON* json, const char* filename);
-
+void construct_tree(char* file_path, int PID);
+void collect_absolute_paths(cJSON* json_node, char*** paths, int* count);
+char** get_absolute_paths_from_json(char* filename, int* count);
 #endif /* WRAPPER_LIBRARY_H */

@@ -10,31 +10,19 @@
 					"dir_name":	"maryam",
 					"dir_hash":	"8ed20cc647da6ff8d0babadf3f19b03e69371837cbed00a64546936db3c6f2e7",
 					"files":	[{
-							"file_name":	"fail.txt",
-							"file_hash":	"16da8c8586573077b87346cb51fb50939e34c18cc5239132a9f67c9edc39892d",
-							"absolute_path":	"/home/maryam/fail.txt",
-							"snapshots":	[{
-									"snapshot_path":	"/home/snapshots/9ae7388587e436da64bf75bc00717983f01362a6fe527d052fa1438505a288bf/2024-04-22_16:27:42_fail.txt",
-									"snapshot_timestamp":	"2024-04-22_16:27:42"
-								}, {
-									"snapshot_path":	"/home/snapshots/9ae7388587e436da64bf75bc00717983f01362a6fe527d052fa1438505a288bf/2024-04-22_16:27:42_fail.txt",
-									"snapshot_timestamp":	"2024-04-22_16:27:42"
-								}, {
-									"snapshot_path":	"/home/snapshots/9ae7388587e436da64bf75bc00717983f01362a6fe527d052fa1438505a288bf/2024-04-22_16:27:42_fail.txt",
-									"snapshot_timestamp":	"2024-04-22_16:27:42"
-								}, {
-									"snapshot_path":	"/home/snapshots/9ae7388587e436da64bf75bc00717983f01362a6fe527d052fa1438505a288bf/2024-04-22_16:27:42_fail.txt",
-									"snapshot_timestamp":	"2024-04-22_16:27:42"
-								}]
-						}, {
 							"file_name":	"pass.txt",
 							"file_hash":	"16ad84dad219e89c42bed23db78e9ca0011ec4704b44692457ed563717dc971b",
 							"absolute_path":	"/home/maryam/pass.txt",
 							"snapshots":	[{
 									"snapshot_path":	"/home/snapshots/ef5ac52cf0f3831500185a81493ebc7d8f8647b5c034941922c0d60b39250c89/2024-04-22_16:27:42_pass.txt",
 									"snapshot_timestamp":	"2024-04-22_16:27:42"
-								}, {
-									"snapshot_path":	"/home/snapshots/ef5ac52cf0f3831500185a81493ebc7d8f8647b5c034941922c0d60b39250c89/2024-04-22_16:27:42_pass.txt",
+								}]
+						}, {
+							"file_name":	"fail.txt",
+							"file_hash":	"16da8c8586573077b87346cb51fb50939e34c18cc5239132a9f67c9edc39892d",
+							"absolute_path":	"/home/maryam/fail.txt",
+							"snapshots":	[{
+									"snapshot_path":	"/home/snapshots/9ae7388587e436da64bf75bc00717983f01362a6fe527d052fa1438505a288bf/2024-04-22_16:27:42_fail.txt",
 									"snapshot_timestamp":	"2024-04-22_16:27:42"
 								}]
 						}],
@@ -46,9 +34,6 @@
 									"file_hash":	"3a00af1f55d408bb63079036e321af84a0474adb8477bfc07b0c5e771ae786d9",
 									"absolute_path":	"/home/maryam/Desktop/100_websites_no_consent_fbpixel.txt",
 									"snapshots":	[{
-											"snapshot_path":	"/home/snapshots/d651a9944f90981ddd52c26f86c15b875718a711f141b767a0e556d1b114bb7f/2024-04-22_16:27:42_100_websites_no_consent_fbpixel.txt",
-											"snapshot_timestamp":	"2024-04-22_16:27:42"
-										}, {
 											"snapshot_path":	"/home/snapshots/d651a9944f90981ddd52c26f86c15b875718a711f141b767a0e556d1b114bb7f/2024-04-22_16:27:42_100_websites_no_consent_fbpixel.txt",
 											"snapshot_timestamp":	"2024-04-22_16:27:42"
 										}]
@@ -95,15 +80,6 @@
 													"snapshots":	[{
 															"snapshot_path":	"/home/snapshots/30a8e9d539d13b839f92d8bce857d6f339e75d287276b54fd772351587cae964/2024-04-22_16:27:42_requirements.txt",
 															"snapshot_timestamp":	"2024-04-22_16:27:42"
-														}, {
-															"snapshot_path":	"/home/snapshots/30a8e9d539d13b839f92d8bce857d6f339e75d287276b54fd772351587cae964/2024-04-22_16:27:42_requirements.txt",
-															"snapshot_timestamp":	"2024-04-22_16:27:42"
-														}, {
-															"snapshot_path":	"/home/snapshots/30a8e9d539d13b839f92d8bce857d6f339e75d287276b54fd772351587cae964/2024-04-22_16:27:42_requirements.txt",
-															"snapshot_timestamp":	"2024-04-22_16:27:42"
-														}, {
-															"snapshot_path":	"/home/snapshots/30a8e9d539d13b839f92d8bce857d6f339e75d287276b54fd772351587cae964/2024-04-22_16:27:42_requirements.txt",
-															"snapshot_timestamp":	"2024-04-22_16:27:42"
 														}]
 												}],
 											"children":	[]
@@ -116,9 +92,6 @@
 											"file_hash":	"a6ed0c785d4590bc95c216bcf514384eee6765b1c2b732d0b0a1ad7e14d3204a",
 											"absolute_path":	"/home/maryam/Desktop/test12/test.txt",
 											"snapshots":	[{
-													"snapshot_path":	"/home/snapshots/4ce65a5aaa4618d91a0461a70936a17b736c0a4ad2d4bb2bf8fcc69d39410202/2024-04-22_16:27:42_test.txt",
-													"snapshot_timestamp":	"2024-04-22_16:27:42"
-												}, {
 													"snapshot_path":	"/home/snapshots/4ce65a5aaa4618d91a0461a70936a17b736c0a4ad2d4bb2bf8fcc69d39410202/2024-04-22_16:27:42_test.txt",
 													"snapshot_timestamp":	"2024-04-22_16:27:42"
 												}]
@@ -141,9 +114,6 @@
 													"file_hash":	"664a295047f7747656cb720a7757617ff48b2a0c43aa73450c040b5667b5b4ff",
 													"absolute_path":	"/home/maryam/Documents/hw2-master/hw2/dtmf_in.txt",
 													"snapshots":	[{
-															"snapshot_path":	"/home/snapshots/c772e6a5b2f6abf14308c8ffd3fe6a0d55dfc3d1f2bca740429bedc0391d4956/2024-04-22_16:27:42_dtmf_in.txt",
-															"snapshot_timestamp":	"2024-04-22_16:27:42"
-														}, {
 															"snapshot_path":	"/home/snapshots/c772e6a5b2f6abf14308c8ffd3fe6a0d55dfc3d1f2bca740429bedc0391d4956/2024-04-22_16:27:42_dtmf_in.txt",
 															"snapshot_timestamp":	"2024-04-22_16:27:42"
 														}]

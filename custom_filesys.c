@@ -291,6 +291,7 @@ void push(file_node** head_ref, char* file_name, char* absolute_path, int PID) {
     char* curr_timestamp = current_timestamp_as_string();
 
     new_file->file_hash = strdup(sha256(file_name));
+    new_file->absolute_path = strdup(absolute_path);
     new_file->versions_path = NULL;
 
     // Initially just store the path to the snapshots and the timestamp
@@ -298,6 +299,7 @@ void push(file_node** head_ref, char* file_name, char* absolute_path, int PID) {
     new_file->snapshot = (snapshot*)malloc(sizeof(snapshot));
     new_file->snapshot->snapshot_path = strdup(snapshot_dir);
     new_file->snapshot->timestamp = strdup(curr_timestamp);
+    
     new_file->snapshot->PID = PID;
     new_file->snapshot->next = NULL;
 
@@ -512,6 +514,10 @@ ssize_t my_write(char* file_path, int fd, const void *buf, size_t count, int PID
         printf("No such file or directory %s\n",full_path);
         return -1;
     }else{
+        if(directory_tree_head == NULL){
+            printf("NOTHING TO THE TREE YET\n");
+            construct_tree("/home/snapshots/directory_tree.json", PID);
+        }
         
         log_write(PID, full_path);
         
@@ -545,28 +551,12 @@ ssize_t my_read(char* file_path, int fd, void *buf, size_t count, int PID) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Beta testing : To save the output to a JSON file
-
+/**
+ * @brief This function is used to transform a directory tree into a cJSON object
+ * 
+ * @param root : The root of the tree 
+ * @return cJSON* 
+ */
 cJSON* dir_tree_to_json(dir_node* root) {
     cJSON* json_node = cJSON_CreateObject();
     cJSON* files_array = cJSON_CreateArray();
@@ -580,6 +570,7 @@ cJSON* dir_tree_to_json(dir_node* root) {
         cJSON* file_json = cJSON_CreateObject();
         cJSON_AddStringToObject(file_json, "file_name", file_ptr->file_name);
         cJSON_AddStringToObject(file_json, "file_hash", file_ptr->file_hash);
+        cJSON_AddStringToObject(file_json, "absolute_path", file_ptr->absolute_path);
         // Add file JSON object to files array
         cJSON_AddItemToArray(files_array, file_json);
 
@@ -613,6 +604,13 @@ cJSON* dir_tree_to_json(dir_node* root) {
     return json_node;
 }
 
+
+/**
+ * @brief This function is a helper that is used to write the cJSON represntation of our directory tree to a JSON file
+ * 
+ * @param json : The cJSON object
+ * @param filename : The filename
+ */
 void write_json_to_file(cJSON* json, const char* filename) {
     FILE* fp = fopen(filename, "w");
     if (fp == NULL) {
@@ -623,4 +621,121 @@ void write_json_to_file(cJSON* json, const char* filename) {
     fprintf(fp, "%s", json_str);
     fclose(fp);
     free(json_str);
+}
+
+
+/**
+ * @brief This function is used for reading a JSON file and reconstructing the tree accordingly. We do not re-construct the snapshot list
+ * for each file because this is redundant. If a user wants to roll back to a previous version then they will use the snapshot directory
+ * This will only be used once when the first "write" operation takes place that will try to reconstruct the tree and then add new nodes.
+ *
+ * @param file_path : The path to the JSON file
+ * @param PID : The pid (process id) of the process performing the operation
+ */
+void construct_tree(char* file_path, int PID) {
+    // printf("here\n");
+    int count;
+    // char* temp = strdup("directory_tree.json");
+    char** paths = get_absolute_paths_from_json(file_path, &count);
+    
+    if (paths) {
+        printf("Absolute Paths:\n");
+        for (int i = 0; i < count; i++) {
+            printf("%s\n", paths[i]);
+            // free(paths[i]); // Free memory allocated for each path
+            add_directory_to_tree(paths[i],PID);
+        }
+        free(paths); // Free memory allocated for paths array
+    } else {
+        printf("Failed to get absolute paths from JSON\n");
+    }
+    // printf("here\n");
+    // print_tree_recursive(directory_tree_head, 0);
+}
+
+/**
+ * @brief This is a helper function that collects all absolute paths to files stored in the JSON that reserves our directory tree
+ * 
+ * @param json_node : The cJSON object representing the contents of the file
+ * @param paths : A array of strings that will include all absolute paths 
+ * @param count : A variable to keep track of the number of absolut paths
+ */
+void collect_absolute_paths(cJSON* json_node, char*** paths, int* count) {
+    // Extract files array
+    cJSON* files_array = cJSON_GetObjectItem(json_node, "files");
+    if (files_array) {
+        int num_files = cJSON_GetArraySize(files_array);
+        for (int i = 0; i < num_files; i++) {
+            cJSON* file_item = cJSON_GetArrayItem(files_array, i);
+            cJSON* absolute_path = cJSON_GetObjectItem(file_item, "absolute_path");
+            if (absolute_path) {
+                // Reallocate memory for paths array
+                *paths = realloc(*paths, (*count + 1) * sizeof(char*));
+                // Allocate memory for the absolute path string
+                (*paths)[*count] = strdup(absolute_path->valuestring);
+                (*count)++;
+            }
+        }
+    }
+
+    // Extract children directories
+    cJSON* children_array = cJSON_GetObjectItem(json_node, "children");
+    if (children_array) {
+        int num_children = cJSON_GetArraySize(children_array);
+        for (int i = 0; i < num_children; i++) {
+            cJSON* child_item = cJSON_GetArrayItem(children_array, i);
+            collect_absolute_paths(child_item, paths, count);
+        }
+    }
+}
+
+
+/**
+ * @brief Get the absolute paths from json files
+ * 
+ * @param filename : The JSON file name where we are reading from
+ * @param count : The number of absolute paths found
+ * @return char** 
+ */
+char** get_absolute_paths_from_json(char* filename, int* count) {
+    *count = 0;
+    char** paths = NULL;
+
+    // Open the JSON file
+    FILE* file = fopen(filename, "r");
+    if (!file) {
+        printf("Error opening JSON file\n");
+        return NULL;
+    }
+
+    // Read JSON data from the file
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    char* json_string = malloc(file_size + 1);
+    if (!json_string) {
+        printf("Error allocating memory\n");
+        fclose(file);
+        return NULL;
+    }
+    fread(json_string, 1, file_size, file);
+    json_string[file_size] = '\0';
+
+    // Parse JSON string
+    cJSON* root = cJSON_Parse(json_string);
+    free(json_string); // Free the allocated memory for JSON string
+    fclose(file);
+
+    if (!root) {
+        printf("Error parsing JSON: %s\n", cJSON_GetErrorPtr());
+        return NULL;
+    }
+
+    // Call recursive function to collect absolute paths
+    collect_absolute_paths(root, &paths, count);
+
+    // Cleanup
+    cJSON_Delete(root);
+
+    return paths;
 }
