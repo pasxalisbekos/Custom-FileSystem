@@ -4,24 +4,40 @@
 threads_list* global_head = NULL;
 pthread_mutex_t head_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-
+/**
+ * @brief 
+ * 
+ * @param new_path 
+ */
 void update_curr_path(char* new_path){
     current_path = strdup(new_path);
 }
 
 
-
+/**
+ * @brief 
+ * 
+ * @param signum 
+ */
 void signal_handler(int signum) {
     printf("Caught signal %d\n", signum);
     exit(signum);
 }
-
+/**
+ * @brief 
+ * 
+ * @param signum 
+ */
 void custom_signal_handler(int signum) {
     printf("Caught signal %d| Operation path: %s\n", signum, current_path);
     //after here we have to find the nodes and release their locks
     exit(signum);
 }
 
+/**
+ * @brief 
+ * 
+ */
 void handler_init(){
     // Setting up our signal handler for all those signals
     signal(SIGKILL, custom_signal_handler); // process killed
@@ -32,8 +48,12 @@ void handler_init(){
 
 }
 
-
-threads_list* getLinkedListInstance() {
+/**
+ * @brief Get the Linked List Instance object
+ * 
+ * @return threads_list* 
+ */
+threads_list* get_linked_list_instance() {
     static threads_list* list = NULL;
     if (list == NULL) {
         pthread_mutex_lock(&head_mutex); // Acquire global mutex
@@ -51,10 +71,15 @@ threads_list* getLinkedListInstance() {
     return list;
 }
 
-
+/**
+ * @brief 
+ * 
+ * @param list 
+ * @param PID 
+ */
 void insert_thread(threads_list** list, int PID) {
     if (*list == NULL) {
-        *list = getLinkedListInstance();
+        *list = get_linked_list_instance();
         if (*list == NULL) {
             return; // Handle initialization failure
         }
@@ -80,6 +105,12 @@ void insert_thread(threads_list** list, int PID) {
     pthread_mutex_unlock(&((*list)->mutex));
 }
 
+/**
+ * @brief 
+ * 
+ * @param list 
+ * @param PID 
+ */
 void remove_thread_node(threads_list** list, int PID) {
     if (*list == NULL) {
         return; // Handle null list
@@ -118,7 +149,11 @@ void remove_thread_node(threads_list** list, int PID) {
 }
 
 
-
+/**
+ * @brief 
+ * 
+ * @param PID 
+ */
 void init(int PID){
     //init handler
     handler_init();
@@ -127,7 +162,11 @@ void init(int PID){
     insert_thread(&global_head,getpid());
 
 }
-
+/**
+ * @brief 
+ * 
+ * @param PID 
+ */
 void end(int PID){
     // Remove process node from the list
     remove_thread_node(&global_head,getpid());

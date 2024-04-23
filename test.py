@@ -1,5 +1,8 @@
 import subprocess
 import threading
+from random import randint
+from time import sleep
+
 
 # Define a lock for synchronization
 lock = threading.Lock()
@@ -29,7 +32,10 @@ with open('operations.txt', 'r') as file:
     commands = file.readlines()
     for i in range(len(commands)):
         commands[i] = "./exec " + commands[i].replace('|',' ').replace('\n','')
+        # print(commands[i])
 
+
+# exit()        
 # Strip newline characters from the commands
 commands = [cmd.strip() for cmd in commands]
 
@@ -37,7 +43,8 @@ commands = [cmd.strip() for cmd in commands]
 def execute_commands_with_timeout(commands, timeout):
     threads = []
     for command in commands:
-        thread = threading.Thread(target=execute_command, args=(command,))
+        sleep(randint(0,10))
+        thread = threading.Thread(target=execute_command, args=(command+" random_value:"+str(randint(0,10)),))
         threads.append(thread)
         thread.start()
 

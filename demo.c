@@ -34,7 +34,6 @@ int main() {
     // monitor_main("./operations.txt");
     // return 0;
 
-
     init_spinlock();
 
     char *filename = "./dir_a/dir_b/dir_c/example.txt";
@@ -60,7 +59,6 @@ int main() {
     }
 
     close(fd);
-
     // A series of write operations on different files to verify the directory tree creation, the snapshot preservation 
     // and the module that saves the structures into a JSON file so we can later (after a system crash) reconstruct the tree
     write_to_file(file_1);
@@ -96,6 +94,17 @@ int main() {
     write_to_file(filename2);
     // sleep(2);
     write_to_file(file_6);
+    // write_to_file(filename);
+    // sleep(2);
+    // write_to_file(filename);
+    // sleep(2);
+    // write_to_file(filename);
+    // sleep(2);
+    // write_to_file(filename);
+    // sleep(2);
+    // write_to_file(filename);
+    // sleep(2);
+    // write_to_file(filename);
 
     fd = open(filename, O_RDONLY);
     if (fd == -1) {

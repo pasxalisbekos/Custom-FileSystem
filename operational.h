@@ -31,7 +31,7 @@ typedef struct threads_list {
 
 void insert_thread(threads_list** list, int PID);
 void remove_thread_node(threads_list** list, int PID);
-threads_list* getLinkedListInstance();
+threads_list* get_linked_list_instance();
 
 extern threads_list* global_head;
 

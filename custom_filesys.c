@@ -3,6 +3,8 @@
 
 dir_node* directory_tree_head = NULL;
 
+pthread_spinlock_t json_tree_lock;
+int is_tree_json_lock_initialized = 0;
 // --------------------------------------------------------------------- HELPER FUNCTIONS --------------------------------------------------------------------- //
 
 /**
@@ -183,13 +185,14 @@ char* create_snapshot(char* file_name, char* absolute_path, char* timestamp){
     //1)  Snapshot file name creation e.g. 2024-04-16 13:23:25_pass.txt
     char* temp_filename = strdup(append_strings("_",file_name));
     char* snapshot_file_name = strdup(append_strings(timestamp,temp_filename));
-
+    // printf("%s\n",snapshot_file_name);
     //2) Snapshot directory creation/search
     struct stat st = {0};
     char* baseline_dir = strdup("/home/snapshots/");
     char* hashed_dir_name = strdup(sha256(absolute_path));
     char* snapshot_dir_name = append_strings(baseline_dir,hashed_dir_name);
 
+    // printf("%s,\n", absolute_path);
     // If the snapshot directory does not exist create it
     if (stat(snapshot_dir_name, &st) == -1) {
         int temp = mkdir(snapshot_dir_name, 0777);
@@ -275,7 +278,7 @@ void update_only_snapshot(snapshot** head, char* file_name, char* absolute_path,
  * @param file_name : The name of the file
  * @param absolute_path : The absolute path to the files
  */
-void push(file_node** head_ref, char* file_name, char* absolute_path, int PID) {
+void push(file_node** head_ref, char* file_name, char* absolute_path, int PID, int flag) {
     file_node* new_file = (file_node*)malloc(sizeof(file_node));
     if (new_file == NULL) {
         return;
@@ -362,7 +365,7 @@ dir_node* create_dir_node(const char* dir_name) {
 
  * @param absolute_path : The absolute path to the file
  */
-void add_directory_to_tree(char* absolute_path,int PID) {
+void add_directory_to_tree(char* absolute_path,int PID, int flag) {
     // Tokenize the absolute path
     char* path_copy = strdup(absolute_path); // Duplicate the path to avoid modifying the original
     
@@ -427,14 +430,17 @@ void add_directory_to_tree(char* absolute_path,int PID) {
     file_node* temp = search_for_file_node(current_node->files_list, file);
     if (temp == NULL){
         // We found no file so add it to the list
-        push(&(current_node->files_list), file , absolute_path, PID);
+        push(&(current_node->files_list), file , absolute_path, PID, flag);
     } else {
         // We must only update the snapshots for this file
-        update_only_snapshot(&(temp->snapshot), file, absolute_path, PID);
+        if(flag == 1){
+            update_only_snapshot(&(temp->snapshot), file, absolute_path, PID);
+        }
         // printf("%s\n",file);
     }
     free(path_copy); // Free the duplicated path
 }
+
 
 /**
  * @brief This function is a helper, used to add a directory node as child to its parent. For example assume the following directories:
@@ -502,53 +508,6 @@ void print_tree_recursive(dir_node* node, int depth) {
 }
 
 
-// --------------------------------------------------------------------- WRAPPER FUNCTIONS --------------------------------------------------------------------- //
-// Custom version of write
-ssize_t my_write(char* file_path, int fd, const void *buf, size_t count, int PID) {
-    
-    char* full_path = realpath(file_path,NULL);
-    
-    
-    if(full_path == NULL){
-        printf("No such file or directory %s\n",full_path);
-        return -1;
-    }else{
-        if(directory_tree_head == NULL){
-            // printf("NOTHING TO THE TREE YET\n");
-            // construct_tree("/home/snapshots/directory_tree.json", PID);
-            try_to_access_json(PID);
-        }
-        
-        log_write(PID, full_path);
-        
-        add_directory_to_tree(full_path,PID);
-    }    
-    
-    // Call the original write function
-    ssize_t (*original_write)(int, const void *, size_t) = dlsym(RTLD_NEXT, "write");
-    return original_write(fd, buf, count);
-}
-
-// Custom version of read
-ssize_t my_read(char* file_path, int fd, void *buf, size_t count, int PID) {
-
-    char* full_path = realpath(file_path,NULL);
-    if(full_path == NULL){
-        printf("No such file or directory %s\n",full_path);
-        return -1;
-    }else{
-        printf("=============================================================================\n");
-        printf("File path: %s\n", full_path);
-        printf("File descriptor value: %d\n",fd);
-        // printf("Contents read: %s\n", (char*)(buf));
-        printf("PID OF PROCESS PERFORMING READ: [%d]\n",PID);
-        printf("=============================================================================\n");
-    }
-
-    // Call the original read function
-    ssize_t (*original_read)(int, void *, size_t) = dlsym(RTLD_NEXT, "read");
-    return original_read(fd, buf, count);
-}
 
 
 /**
@@ -643,7 +602,7 @@ void construct_tree(char* file_path, int PID) {
         for (int i = 0; i < count; i++) {
             // printf("%s\n", paths[i]);
             // free(paths[i]);
-            add_directory_to_tree(paths[i],PID);
+            add_directory_to_tree(paths[i],PID,0);
         }
         free(paths); // Free memory allocated for paths array
     } else {
@@ -735,7 +694,12 @@ char** get_absolute_paths_from_json(char* filename, int* count) {
     return paths;
 }
 
-
+/**
+ * @brief 
+ * 
+ * @param PID 
+ * @return int 
+ */
 int try_to_access_json(int PID){
     
     
@@ -773,7 +737,11 @@ int try_to_access_json(int PID){
 }
 
 
-
+/**
+ * @brief Thread safe function to dump the directory tree to the json file preserving the file system structure
+ * 
+ * @return int : -1 on failure, 0 on success 
+ */
 int extract_tree_to_json(){
     
     int fd = open("/home/snapshots/directory_tree.json", O_RDWR | O_CREAT, 0644);
@@ -814,3 +782,132 @@ int extract_tree_to_json(){
 
     return 0;
 }
+
+
+/**
+ * @brief The following functions initiallize a spinlock named : json_tree_lock
+ * that will be used  to achieve concurrency when writing the tree to the JSON file
+ * 
+ */
+
+/**
+ * @brief Initiallizes the spinlock using the pthread_spin_init function and 
+ * updates the init flag for the lock
+ */
+void init_spinlock_json_tree() {
+    pthread_spin_init(&json_tree_lock, 0);
+    is_tree_json_lock_initialized = 1;
+}
+/**
+ * @brief Cleans up (destroys) the spinlock instance and set the lock flag to 0
+ * 
+ */
+void destroy_spinlock_json_tree() {
+    pthread_spin_destroy(&json_tree_lock);
+    is_tree_json_lock_initialized = 0;
+}
+/**
+ * @brief Acquires the spinlock. If not inititallized (based on the flag value)
+ * this function initiallizes the lock before trying to acquire it.
+ */
+void acquire_spinlock_json_tree() {
+    if (!is_tree_json_lock_initialized) {
+        init_spinlock_json_tree();
+    }
+    pthread_spin_lock(&json_tree_lock);
+}
+/**
+ * @brief Releases the spinlock
+ * 
+ */
+void release_spinlock_json_tree() {
+    pthread_spin_unlock(&json_tree_lock);
+}
+/**
+ * @brief This function is the wrapper function that uses the spinlock: json_tree_lock
+ * and preserves consistency when writing the directory tree to the JSON file 
+ * 
+ */
+void tree_write() {    
+    acquire_spinlock_json_tree();
+    extract_tree_to_json();
+    release_spinlock_json_tree();
+}
+
+
+
+
+
+
+
+// --------------------------------------------------------------------- WRAPPER FUNCTIONS --------------------------------------------------------------------- //
+// Custom version of write
+ssize_t my_write(char* file_path, int fd, const void *buf, size_t count, int PID) {
+    
+    char* full_path = realpath(file_path,NULL);
+    printf("Process :%d wrting on %s at [%s]\n",PID,file_path,current_timestamp_as_string());
+    if(full_path == NULL){
+        printf("No such file or directory %s\n",full_path);
+        return -1;
+    }else{
+        if(directory_tree_head == NULL){
+            // printf("NOTHING TO THE TREE YET\n");
+            int line_count = 0;
+            char** prev_paths = read_absolute_paths(&line_count);
+            
+            if(prev_paths != NULL){
+                // printf("================================================================================================\n");
+                // printf("%d\n",line_count);
+                for(int i=0; i < line_count; i++){
+                    // printf("----------> %s\n",prev_paths[i]);
+                    add_directory_to_tree(realpath(prev_paths[i],NULL),PID, 0);
+                }
+                // printf("================================================================================================\n");
+
+            } 
+        }
+            
+        log_write(PID, full_path);
+        log_write_abs_path(full_path);
+        add_directory_to_tree(full_path,PID, 1);
+    }    
+    
+    // Call the original write function
+    
+    ssize_t (*original_write)(int, const void *, size_t) = dlsym(RTLD_NEXT, "write");
+    return original_write(fd, buf, count);
+}
+
+// Custom version of read
+ssize_t my_read(char* file_path, int fd, void *buf, size_t count, int PID) {
+
+    char* full_path = realpath(file_path,NULL);
+    if(full_path == NULL){
+        printf("No such file or directory %s\n",full_path);
+        return -1;
+    }else{
+        printf("=============================================================================\n");
+        printf("File path: %s\n", full_path);
+        printf("File descriptor value: %d\n",fd);
+        // printf("Contents read: %s\n", (char*)(buf));
+        printf("PID OF PROCESS PERFORMING READ: [%d]\n",PID);
+        printf("=============================================================================\n");
+    }
+
+    // Call the original read function
+    ssize_t (*original_read)(int, void *, size_t) = dlsym(RTLD_NEXT, "read");
+    return original_read(fd, buf, count);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

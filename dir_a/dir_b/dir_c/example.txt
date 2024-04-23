@@ -1,4 +1,4 @@
-Hello, this is a custom write function!v
+random_value:9 a custom write function!v
 sav
 vdsv
 sad
