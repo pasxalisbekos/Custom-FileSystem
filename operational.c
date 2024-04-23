@@ -14,42 +14,41 @@ void update_curr_path(char* new_path){
 }
 
 
+
 /**
- * @brief 
- * 
- * @param signum 
+ * @brief This is the global signal handler that each thread using our custom write/read should first initiallize it. Upon a crash
+ * we must be able to preserve the current status of the system (write the tree directory to the JSON file)
+ *
+ * @param signum : The signal number (e.g. seg fault: 11)
  */
-void signal_handler(int signum) {
-    printf("Caught signal %d\n", signum);
-    exit(signum);
-}
-/**
- * @brief 
- * 
- * @param signum 
- */
-void custom_signal_handler(int signum) {
+ void custom_signal_handler(int signum) {
     printf("Caught signal %d| Operation path: %s\n", signum, current_path);
     //after here we have to find the nodes and release their locks
     exit(signum);
 }
 
 /**
- * @brief 
- * 
+ * @brief This is the initializer function for our signal handler. It sets up our handler for the following signals
+ *  1) SIGKILL : Process killed
+ *  2) SIGSEGV : Segmentation fault
+ *  3) SIGABRT : Abort signal
+ *  4) SIGILL  : Illegal instruction
+ *  5) SIGFPE  : Floating point exception
+ *  Those are some initial signals that our implementation is handling, any addition for a new signal should be written inside
+ *  this function.
  */
 void handler_init(){
     // Setting up our signal handler for all those signals
-    signal(SIGKILL, custom_signal_handler); // process killed
-    signal(SIGSEGV, custom_signal_handler); // Segmentation fault
-    signal(SIGABRT, custom_signal_handler); // Abort signal
-    signal(SIGILL,  custom_signal_handler);  // Illegal instruction
-    signal(SIGFPE,  custom_signal_handler);  // Floating point exception
+    signal(SIGKILL, custom_signal_handler); 
+    signal(SIGSEGV, custom_signal_handler); 
+    signal(SIGABRT, custom_signal_handler); 
+    signal(SIGILL,  custom_signal_handler); 
+    signal(SIGFPE,  custom_signal_handler);  
 
 }
 
 /**
- * @brief Get the Linked List Instance object
+ * @brief This was a custom function that is not currently being user. It simply returned the list of active processes
  * 
  * @return threads_list* 
  */
@@ -72,10 +71,10 @@ threads_list* get_linked_list_instance() {
 }
 
 /**
- * @brief 
- * 
- * @param list 
- * @param PID 
+ * @brief Adds a new thread instance to the list of threads
+ *  
+ * @param list : The head of the list 
+ * @param PID  : The process id of the process added to the list
  */
 void insert_thread(threads_list** list, int PID) {
     if (*list == NULL) {
@@ -106,10 +105,10 @@ void insert_thread(threads_list** list, int PID) {
 }
 
 /**
- * @brief 
- * 
- * @param list 
- * @param PID 
+ * @brief Removes a thread instance from the list of threads
+ *  
+ * @param list : The head of the list 
+ * @param PID  : The process id of the process removed from the list
  */
 void remove_thread_node(threads_list** list, int PID) {
     if (*list == NULL) {
@@ -150,9 +149,9 @@ void remove_thread_node(threads_list** list, int PID) {
 
 
 /**
- * @brief 
+ * @brief Initiallizes the thread list and the signal handler
  * 
- * @param PID 
+ * @param PID : The process ID
  */
 void init(int PID){
     //init handler
@@ -163,9 +162,9 @@ void init(int PID){
 
 }
 /**
- * @brief 
+ * @brief This function handles the completion of execution. Removes all threads from the lists and prints a log message
  * 
- * @param PID 
+ * @param PID : The process ID
  */
 void end(int PID){
     // Remove process node from the list

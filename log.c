@@ -3,7 +3,7 @@
 pthread_spinlock_t lock;
 int is_lock_initialized = 0;
 /**
- * @brief 
+ * @brief Initiallizes the log file's spinlock and sets up the lock_is_initialized flag to 1
  * 
  */
 void init_spinlock() {
@@ -11,7 +11,7 @@ void init_spinlock() {
     is_lock_initialized = 1;
 }
 /**
- * @brief 
+ * @brief Cleans up (destroys) the log file's spinlock and sets up the lock_is_initialized flag to 0
  * 
  */
 void destroy_spinlock() {
@@ -19,8 +19,8 @@ void destroy_spinlock() {
     is_lock_initialized = 0;
 }
 /**
- * @brief 
- * 
+ * @brief Acquires the log file's spinlock, if not initiallized then first initiallizes it
+ * and updates the lock_is_initialized flag to 1
  */
 void acquire_spinlock() {
     if (!is_lock_initialized) {
@@ -29,17 +29,17 @@ void acquire_spinlock() {
     pthread_spin_lock(&lock);
 }
 /**
- * @brief 
+ * @brief Releases the log file's spinlock
  * 
  */
 void release_spinlock() {
     pthread_spin_unlock(&lock);
 }
 /**
- * @brief 
- * 
- * @param pid 
- * @param file_path 
+ * @brief This function preserves a log file under the directory /home/snapshots named log.txt that records the process ID
+ * ,the operation the process performed and the file where this operation was performed.
+ * @param pid : The process performing an operation (read/write)
+ * @param file_path : The path to the file where the operation takes place
  */
 void log_write(int pid, char* file_path) {
     char log_message[256];
@@ -66,7 +66,7 @@ pthread_spinlock_t tree_lock;
 int is_tree_lock_initialized = 0;
 
 /**
- * @brief 
+ * @brief Initiallizes the absolute paths log file's spinlock and sets up the is_tree_lock_initialized flag to 1
  * 
  */
 void init_spinlock_dir_tree() {
@@ -74,7 +74,7 @@ void init_spinlock_dir_tree() {
     is_tree_lock_initialized = 1;
 }
 /**
- * @brief 
+ * @brief Cleans up (destroys) the absolute paths log file's spinlock and sets up the is_tree_lock_initialized flag to 0
  * 
  */
 void destroy_spinlock_dir_tree() {
@@ -82,8 +82,8 @@ void destroy_spinlock_dir_tree() {
     is_tree_lock_initialized = 0;
 }
 /**
- * @brief 
- * 
+ * @brief Acquires the absolute paths log file's spinlock, if not initiallized then first initiallizes it
+ * and updates the is_tree_lock_initialized flag to 1
  */
 void acquire_spinlock_dir_tree() {
     if (!is_tree_lock_initialized) {
@@ -92,7 +92,7 @@ void acquire_spinlock_dir_tree() {
     pthread_spin_lock(&tree_lock);
 }
 /**
- * @brief 
+ * @brief Releases the absolute paths log file's spinlock 
  * 
  */
 void release_spinlock_dir_tree() {
@@ -100,20 +100,18 @@ void release_spinlock_dir_tree() {
 }
 
 /**
- * @brief 
- * 
+ * @brief This function is used to write the absolute path of a file where an operation is taking place to a log file preserving
+ * all paths to files that where modified. This might require a cleanup (e.g. reserve unique paths only but this will be handled)
+ * by the daemon process
  * @param file_path 
  */
 void log_write_abs_path(char* file_path) {
     char absolute_path[256];
 
-    // printf("here1\n");
     snprintf(absolute_path, sizeof(absolute_path), "%s\n", file_path);
     
-    // printf("here2\n");
     acquire_spinlock_dir_tree();
     
-    // printf("hereeee\n");
     int log_fd = open(ABSOLUTE_PATHS, O_WRONLY | O_CREAT | O_APPEND, 0644);
     if (log_fd == -1) {
         perror("Error opening log file");
@@ -129,10 +127,10 @@ void log_write_abs_path(char* file_path) {
 
 
 /**
- * @brief 
+ * @brief This is a thread safe function that is used to read all paths reserved in the absolute paths log file.
  * 
- * @param line_count 
- * @return char** 
+ * @param line_count : The number of lines read
+ * @return char** : An array of string including all preserved paths.
  */
 char** read_absolute_paths(int* line_count) {
 
@@ -167,7 +165,6 @@ char** read_absolute_paths(int* line_count) {
     char buffer[MAX_LINE_LENGTH];
     int i = 0;
     while (fgets(buffer, MAX_LINE_LENGTH, file) != NULL) {
-        // Remove trailing newline character
         size_t length = strlen(buffer);
         if (buffer[length - 1] == '\n') {
             buffer[length - 1] = '\0';
@@ -176,7 +173,7 @@ char** read_absolute_paths(int* line_count) {
         i++;
     }
 
-    *line_count = count; // Update the line count
+    *line_count = count; \
     fclose(file);
 
     release_spinlock_dir_tree();
