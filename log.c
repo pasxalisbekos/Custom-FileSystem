@@ -173,7 +173,7 @@ char** read_absolute_paths(int* line_count) {
         i++;
     }
 
-    *line_count = count; \
+    *line_count = count;
     fclose(file);
 
     release_spinlock_dir_tree();
