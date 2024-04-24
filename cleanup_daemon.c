@@ -82,11 +82,13 @@ void list_sub_directories(char *base_directory_path) {
     while ((dp = readdir(dir)) != NULL) {
         if (dp->d_type == DT_DIR) {
             if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0) {
-                // printf("%s/%s\n",base_directory_path, dp->d_name);
+                printf("=============================================================================================\n");
+                printf("%s/%s\n",base_directory_path, dp->d_name);
                 char* base_line_dir = strdup(append_strings(base_directory_path,"/"));
                 char* absolute_path = strdup(append_strings(base_line_dir,dp->d_name));
                 char* most_recent_snapshot = list_files_in_directory(absolute_path);
-
+                printf("Most recent snapshot: %s\n", most_recent_snapshot);
+                printf("=============================================================================================\n");
                 remove_old_files(absolute_path,most_recent_snapshot);
             }
         }

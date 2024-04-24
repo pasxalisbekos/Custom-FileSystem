@@ -253,7 +253,7 @@ file_node* search_for_file_node(file_node* head, char* file_name){
  * @param file_name : The name of the file
  * @param absolute_path  : The absolute path to the file
  */
-void update_only_snapshot(snapshot** head, char* file_name, char* absolute_path, int PID){
+void update_only_snapshot(snapshot** head, char* file_name, char* absolute_path, int PID, int operation_flag){
 
     snapshot* new_snapshot = (snapshot*)malloc(sizeof(snapshot));
     if (new_snapshot == NULL){
@@ -278,7 +278,7 @@ void update_only_snapshot(snapshot** head, char* file_name, char* absolute_path,
  * @param file_name : The name of the file
  * @param absolute_path : The absolute path to the files
  */
-void push(file_node** head_ref, char* file_name, char* absolute_path, int PID, int flag) {
+void push(file_node** head_ref, char* file_name, char* absolute_path, int PID, int flag, int operation_flag) {
     file_node* new_file = (file_node*)malloc(sizeof(file_node));
     if (new_file == NULL) {
         return;
@@ -295,19 +295,39 @@ void push(file_node** head_ref, char* file_name, char* absolute_path, int PID, i
     new_file->file_hash = strdup(sha256(file_name));
     new_file->absolute_path = strdup(absolute_path);
     new_file->versions_path = NULL;
+    new_file->operations_size = 1;
+    new_file->operations = (char*)malloc(new_file->operations_size * sizeof(char));
+
+    switch(operation_flag){
+        case 0:
+            new_file->operations[0] = 'R';
+            break;
+        case 1:
+            new_file->operations[0] = 'W';
+            break;
+        case 2:
+            new_file->operations[0] = 'A';
+            break;
+        default:
+            new_file->operations[0] = 'U';
+            break;
+    }
+    
+    
+    // printf("%c\n",new_file->operations[new_file->operations_size]);
 
     // Initially just store the path to the snapshots and the timestamp
     char* snapshot_dir = create_snapshot(file_name,absolute_path,curr_timestamp);
     new_file->snapshot = (snapshot*)malloc(sizeof(snapshot));
     new_file->snapshot->snapshot_path = strdup(snapshot_dir);
     new_file->snapshot->timestamp = strdup(curr_timestamp);
-    
     new_file->snapshot->PID = PID;
     new_file->snapshot->next = NULL;
 
     new_file->next = *head_ref;
     
     *head_ref = new_file;
+    // printf("%c\n",(*head_ref)->operations[(*head_ref)->operations_size]);
 }
 
 
@@ -365,7 +385,8 @@ dir_node* create_dir_node(const char* dir_name) {
 
  * @param absolute_path : The absolute path to the file
  */
-void add_directory_to_tree(char* absolute_path,int PID, int flag) {
+void add_directory_to_tree(char* absolute_path,int PID, int flag, int operation_flag) {
+
     // Tokenize the absolute path
     char* path_copy = strdup(absolute_path); // Duplicate the path to avoid modifying the original
     
@@ -430,12 +451,37 @@ void add_directory_to_tree(char* absolute_path,int PID, int flag) {
     file_node* temp = search_for_file_node(current_node->files_list, file);
     if (temp == NULL){
         // We found no file so add it to the list
-        push(&(current_node->files_list), file , absolute_path, PID, flag);
+        push(&(current_node->files_list), file , absolute_path, PID, flag, operation_flag);
+        // printf("======================> %c\n",current_node->files_list->operations[0]);
     } else {
         // We must only update the snapshots for this file
         if(flag == 1){
-            update_only_snapshot(&(temp->snapshot), file, absolute_path, PID);
+            update_only_snapshot(&(temp->snapshot), file, absolute_path, PID, operation_flag);
         }
+        size_t new_size = temp->operations_size + 1;
+        char* new_operations = (char*)realloc(temp->operations, new_size * sizeof(char));
+        if (new_operations == NULL) {
+            fprintf(stderr, "Memory reallocation failed\n");
+            exit(1); // or handle the error in another way
+        }
+        temp->operations = new_operations;
+        switch(operation_flag){
+            case 0:
+                temp->operations[temp->operations_size] = 'R';
+                break;
+            case 1:
+                temp->operations[temp->operations_size] = 'W';
+                break;
+            case 2:
+                temp->operations[temp->operations_size] = 'A';
+                break;
+            default:
+                temp->operations[temp->operations_size] = 'U';
+                break;
+        }
+        
+        temp->operations_size = new_size;
+        
         // printf("%s\n",file);
     }
     free(path_copy); // Free the duplicated path
@@ -533,7 +579,17 @@ cJSON* dir_tree_to_json(dir_node* root) {
         // Add file JSON object to files array
         cJSON_AddItemToArray(files_array, file_json);
 
+        cJSON* operations_array = cJSON_CreateArray();
+        size_t size = file_ptr->operations_size;
+        for(int i = 0; i < size; i++) {
+            // Convert each operation character to a string and add it to the operations array
+            char operation_str[2] = {file_ptr->operations[i], '\0'}; // Create a string from the operation character
+            cJSON_AddItemToArray(operations_array, cJSON_CreateString(operation_str));
+        }
 
+        // Add the operations array to the file JSON object
+        cJSON_AddItemToObject(file_json, "operations", operations_array);
+        
         cJSON* snapshots_array = cJSON_CreateArray();
         snapshot* head = file_ptr->snapshot;
         while(head != NULL){
@@ -602,7 +658,7 @@ void construct_tree(char* file_path, int PID) {
         for (int i = 0; i < count; i++) {
             // printf("%s\n", paths[i]);
             // free(paths[i]);
-            add_directory_to_tree(paths[i],PID,0);
+            add_directory_to_tree(paths[i],PID,0, -1);
         }
         free(paths); // Free memory allocated for paths array
     } else {
@@ -842,8 +898,29 @@ void tree_write() {
 
 // --------------------------------------------------------------------- WRAPPER FUNCTIONS --------------------------------------------------------------------- //
 // Custom version of write
-ssize_t my_write(char* file_path, int fd, const void *buf, size_t count, int PID) {
+ssize_t my_write(char* file_path, int fd, const void *buf, size_t count, int PID, operation_type type) {
     
+    int operation_flag = 0;
+    switch(type){
+        case APPEND:
+            // printf("APPEND\n");
+            break;
+        case WRITE:
+            // printf("WRITE\n");
+            break;
+        default:
+            // printf("Unknown\n");
+            operation_flag = -1;
+            break;
+    }
+    if( operation_flag == -1){
+        fprintf(stderr, "Unknown operation flag [%d] in file %s\nExiting...\n",type,file_path);
+        return -1;
+    }
+
+
+
+
     char* full_path = realpath(file_path,NULL);
     printf("Process :%d wrting on %s at [%s]\n",PID,file_path,current_timestamp_as_string());
     if(full_path == NULL){
@@ -860,7 +937,14 @@ ssize_t my_write(char* file_path, int fd, const void *buf, size_t count, int PID
                 // printf("%d\n",line_count);
                 for(int i=0; i < line_count; i++){
                     // printf("----------> %s\n",prev_paths[i]);
-                    add_directory_to_tree(realpath(prev_paths[i],NULL),PID, 0);
+                    char** path_split = str_split(prev_paths[i],'|');
+                    
+                    // Get the path to the file from the absolute_paths.txt
+                    char* path = realpath(path_split[0],NULL);
+                    // Get the corresponding operation performed on that file
+                    int operation = atoi(path_split[1]);
+                    // printf("FOUND PREVIOUS OPERATION: %d ON FILE: %s\n",operation,path);
+                    add_directory_to_tree(path,PID, 0, operation);
                 }
                 // printf("================================================================================================\n");
 
@@ -868,8 +952,9 @@ ssize_t my_write(char* file_path, int fd, const void *buf, size_t count, int PID
         }
             
         log_write(PID, full_path);
-        log_write_abs_path(full_path);
-        add_directory_to_tree(full_path,PID, 1);
+        log_write_abs_path(full_path,(int)(type));
+        // printf("PERFORMING %d IN FILE %s\n",(int)(type),full_path);
+        add_directory_to_tree(full_path,PID, 1, (int)(type));
     }    
     
     // Call the original write function
@@ -898,16 +983,3 @@ ssize_t my_read(char* file_path, int fd, void *buf, size_t count, int PID) {
     ssize_t (*original_read)(int, void *, size_t) = dlsym(RTLD_NEXT, "read");
     return original_read(fd, buf, count);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

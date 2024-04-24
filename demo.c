@@ -13,7 +13,7 @@ void write_to_file(char* filename){
     }
 
     const char *str = "Hello, this is a custom write function!";
-    ssize_t bytes_written = my_write(filename, fd, str, strlen(str), getpid());
+    ssize_t bytes_written = my_write(filename, fd, str, strlen(str), getpid(), WRITE);
     if (bytes_written == -1) {
         perror("Error writing to file");
         close(fd);
@@ -34,7 +34,7 @@ int main() {
     // monitor_main("./operations.txt");
     // return 0;
 
-    init_spinlock();
+    // init_spinlock();
 
     char *filename = "./dir_a/dir_b/dir_c/example.txt";
     char *filename2 = "./dir_a/dir_b/dir_c/example2.txt";
@@ -44,92 +44,96 @@ int main() {
     char *file_4 = "/home/pbekos/Desktop/100_websites_no_consent_fbpixel.txt";
     char *file_5 = "/home/pbekos/Desktop/rerun/grader-s19/requirements.txt";
     char *file_6 = "/home/pbekos/Desktop/test12/test.txt";
-    int fd = open(filename, O_CREAT | O_WRONLY, 0644);
-    if (fd == -1) {
-        perror("Error opening file");
-        return 1;
-    }
+    // int fd = open(filename, O_CREAT | O_WRONLY, 0644);
+    // if (fd == -1) {
+    //     perror("Error opening file");
+    //     return 1;
+    // }
 
-    const char *str = "Hello, this is a custom write function!";
-    ssize_t bytes_written = my_write(filename, fd, str, strlen(str), getpid());
-    if (bytes_written == -1) {
-        perror("Error writing to file");
-        close(fd);
-        return 1;
-    }
+    // const char *str = "Hello, this is a custom write function!";
+    // ssize_t bytes_written = my_write(filename, fd, str, strlen(str), getpid());
+    // if (bytes_written == -1) {
+    //     perror("Error writing to file");
+    //     close(fd);
+    //     return 1;
+    // }
 
-    close(fd);
-    // A series of write operations on different files to verify the directory tree creation, the snapshot preservation 
-    // and the module that saves the structures into a JSON file so we can later (after a system crash) reconstruct the tree
-    write_to_file(file_1);
-    // sleep(5);
-    write_to_file(file_2);
-    // sleep(3);
-    write_to_file(file_5);
-    // sleep(10);
-    write_to_file(file_3);
-    write_to_file(filename2);
-    // sleep(9);
-    write_to_file(file_4);
-    // sleep(1);
-    write_to_file(file_5);
-    // sleep(8);
-    write_to_file(file_2);
-    // sleep(2);
-    write_to_file(file_6);
-    write_to_file(filename2);
-    write_to_file(file_1);
-    // sleep(5);
-    write_to_file(file_2);
-    // sleep(3);
-    write_to_file(file_5);
-    // sleep(10);
-    write_to_file(file_3);
-    // sleep(9);
-    write_to_file(file_4);
-    // sleep(1);
-    write_to_file(file_5);
-    // sleep(8);
-    write_to_file(file_2);
-    write_to_file(filename2);
-    // sleep(2);
-    write_to_file(file_6);
-    // write_to_file(filename);
-    // sleep(2);
-    // write_to_file(filename);
-    // sleep(2);
-    // write_to_file(filename);
-    // sleep(2);
-    // write_to_file(filename);
-    // sleep(2);
-    // write_to_file(filename);
-    // sleep(2);
-    // write_to_file(filename);
+    // close(fd);
+    // // A series of write operations on different files to verify the directory tree creation, the snapshot preservation 
+    // // and the module that saves the structures into a JSON file so we can later (after a system crash) reconstruct the tree
+    // write_to_file(file_1);
+    // // sleep(5);
+    // write_to_file(file_2);
+    // // sleep(3);
+    // write_to_file(file_5);
+    // // sleep(10);
+    // write_to_file(file_3);
+    // write_to_file(filename2);
+    // // sleep(9);
+    // write_to_file(file_4);
+    // // sleep(1);
+    // write_to_file(file_5);
+    // // sleep(8);
+    // write_to_file(file_2);
+    // // sleep(2);
+    // write_to_file(file_6);
+    write_to_file(filename);
+    write_to_file(filename);
+    // write_to_file(file_1);
+    // // sleep(5);
+    // write_to_file(file_2);
+    // // sleep(3);
+    // write_to_file(file_5);
+    // // sleep(10);
+    // write_to_file(file_3);
+    // // sleep(9);
+    // write_to_file(file_4);
+    // // sleep(1);
+    // write_to_file(file_5);
+    // // sleep(8);
+    // write_to_file(file_2);
+    // write_to_file(filename2);
+    // // sleep(2);
+    // write_to_file(file_6);
+    // // write_to_file(filename);
+    // // sleep(2);
+    // // write_to_file(filename);
+    // // sleep(2);
+    // // write_to_file(filename);
+    // // sleep(2);
+    // // write_to_file(filename);
+    // // sleep(2);
+    // // write_to_file(filename);
+    // // sleep(2);
+    // // write_to_file(filename);
 
-    fd = open(filename, O_RDONLY);
-    if (fd == -1) {
-        perror("Error opening file for reading");
-        return 1;
-    }
+    // fd = open(filename, O_RDONLY);
+    // if (fd == -1) {
+    //     perror("Error opening file for reading");
+    //     return 1;
+    // }
 
-    char buffer[100];
-    ssize_t bytes_read = my_read(filename, fd, buffer, sizeof(buffer), getpid());
-    if (bytes_read == -1) {
-        perror("Error reading from file");
-        close(fd);
-        return 1;
-    }
+    // char buffer[100];
+    // ssize_t bytes_read = my_read(filename, fd, buffer, sizeof(buffer), getpid());
+    // if (bytes_read == -1) {
+    //     perror("Error reading from file");
+    //     close(fd);
+    //     return 1;
+    // }
 
-    // printf("Read from file: %s\n", buffer);
+    // // printf("Read from file: %s\n", buffer);
 
-    close(fd);
+    // close(fd);
 
-    // list_sub_directories("/home/snapshots");
+    // // list_sub_directories("/home/snapshots");
 
-    destroy_spinlock();
+    // destroy_spinlock();
 
-    int y = try_to_access_json(getpid());
+    // int y = try_to_access_json(getpid());
 
     int x = extract_tree_to_json();
+
+
+    // list_sub_directories("/home/snapshots");
     return 0;
 }

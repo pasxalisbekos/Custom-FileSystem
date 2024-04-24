@@ -105,10 +105,10 @@ void release_spinlock_dir_tree() {
  * by the daemon process
  * @param file_path 
  */
-void log_write_abs_path(char* file_path) {
+void log_write_abs_path(char* file_path,int type) {
     char absolute_path[256];
-
-    snprintf(absolute_path, sizeof(absolute_path), "%s\n", file_path);
+    // printf("===============================> %d\n",type);
+    snprintf(absolute_path, sizeof(absolute_path), "%s|%d\n", file_path, type);
     
     acquire_spinlock_dir_tree();
     

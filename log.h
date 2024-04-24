@@ -33,6 +33,6 @@ void init_spinlock_dir_tree();
 void destroy_spinlock_dir_tree();
 void acquire_spinlock_dir_tree();
 void release_spinlock_dir_tree();
-void log_write_abs_path(char* file_path);
+void log_write_abs_path(char* file_path,int type);
 char** read_absolute_paths(int* line_count);
 #endif

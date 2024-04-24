@@ -15,7 +15,7 @@ void write_to_file(char* filename,char* new_val){
     }
 
     char *str = "Hello, this is a custom write function!";
-    ssize_t bytes_written = my_write(filename, fd, (const char*)new_val, strlen(new_val), getpid());
+    ssize_t bytes_written = my_write(filename, fd, (const char*)new_val, strlen(new_val), getpid(),WRITE);
     if (bytes_written == -1) {
         perror("Error writing to file");
         close(fd);
