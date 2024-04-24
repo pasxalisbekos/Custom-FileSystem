@@ -14,7 +14,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <cjson/cJSON.h> 
-
+#include <pwd.h>
+#include <grp.h>
 
 #define MAX_TIMESTAMP_LENGTH 20
 #define SHA256_DIGEST_LENGTH 32
@@ -44,6 +45,9 @@ typedef struct file_node {
     char* file_hash;
     char* absolute_path;
     char* versions_path;
+    char* permissions;
+    long size;
+    char* ownership;
     char* operations;
     size_t operations_size;
     struct snapshot* snapshot;
@@ -74,6 +78,9 @@ char *append_strings(char *start, char *add);
 char *sha256(const char *input);
 char* current_timestamp_as_string();
 char* replace_char(char* str, char find, char replace);
+char *get_permissions(char *path_to_file);
+long get_file_size(char *path_to_file);
+char *get_file_ownership(char *path_to_file);
 // --------------------------------------------------------------------- FILE LIST FUNCTIONS --------------------------------------------------------------------- //
 void push(file_node** head_ref, char* file_name, char* absolute_path,int PID, int flag, int operation);
 void update_only_snapshot(snapshot** head, char* file_name, char* absolute_path, int PID, int operation);

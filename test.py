@@ -44,7 +44,7 @@ def execute_commands_with_timeout(commands, timeout):
     threads = []
     for command in commands:
         sleep(randint(0,10))
-        thread = threading.Thread(target=execute_command, args=(command+" random_value:"+str(randint(0,10)),))
+        thread = threading.Thread(target=execute_command, args=(command+" random_value:"+str(randint(0,10))+" "+str(randint(0,1)),))
         threads.append(thread)
         thread.start()
 

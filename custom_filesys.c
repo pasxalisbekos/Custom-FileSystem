@@ -6,6 +6,116 @@ dir_node* directory_tree_head = NULL;
 pthread_spinlock_t json_tree_lock;
 int is_tree_json_lock_initialized = 0;
 // --------------------------------------------------------------------- HELPER FUNCTIONS --------------------------------------------------------------------- //
+/**
+ * @brief Get the permissions of a file as a string representation
+ * 
+ * @param path_to_file : The absolute path to a file
+ * @return char*  : The string representation of the permissions
+ */
+char *get_permissions(char *path_to_file) {
+    struct stat file_stat;
+
+    if (stat(path_to_file, &file_stat) == -1) {
+        perror("Error getting file status");
+        return NULL;
+    }
+
+    char *permissions = (char *)malloc(10 * sizeof(char));
+    if (permissions == NULL) {
+        perror("Memory allocation failed");
+        return NULL;
+    }
+
+    // Fill permissions string based on file mode
+    sprintf(permissions, "%c%c%c%c%c%c%c%c%c",
+            (S_ISDIR(file_stat.st_mode)) ? 'd' : '-',
+            (file_stat.st_mode & S_IRUSR) ? 'r' : '-',
+            (file_stat.st_mode & S_IWUSR) ? 'w' : '-',
+            (file_stat.st_mode & S_IXUSR) ? 'x' : '-',
+            (file_stat.st_mode & S_IRGRP) ? 'r' : '-',
+            (file_stat.st_mode & S_IWGRP) ? 'w' : '-',
+            (file_stat.st_mode & S_IXGRP) ? 'x' : '-',
+            (file_stat.st_mode & S_IROTH) ? 'r' : '-',
+            (file_stat.st_mode & S_IWOTH) ? 'w' : '-',
+            (file_stat.st_mode & S_IXOTH) ? 'x' : '-');
+
+    return permissions;
+}
+
+/**
+ * @brief Get the file size 
+ * 
+ * @param filename 
+ * @return long 
+ */
+long get_file_size(char *path_to_file) {
+    FILE *file = fopen(path_to_file, "rb"); 
+    if (file == NULL) {
+        perror("Error opening file");
+        return -1;
+    }
+
+    if (fseek(file, 0, SEEK_END) != 0) {
+        perror("Error seeking to end of file");
+        fclose(file);
+        return -1;
+    }
+
+    // Get the current position in the file, which corresponds to the file size
+    long size = ftell(file);
+    if (size == -1) {
+        perror("Error getting file size");
+        fclose(file);
+        return -1;
+    }
+
+    fclose(file);
+    return size;
+}
+/**
+ * @brief Get the file ownership of a file
+ * 
+ * @param filename : The absolute path to a file
+ * @return char* : A string representation of the ownership of that file
+ */
+char *get_file_ownership(char *path_to_file) {
+    struct stat file_stat;
+    struct passwd *owner_info;
+    struct group *group_info;
+
+    // Get file status
+    if (stat(path_to_file, &file_stat) == -1) {
+        perror("Error getting file status");
+        return NULL;
+    }
+
+    // Get owner information
+    owner_info = getpwuid(file_stat.st_uid);
+    if (owner_info == NULL) {
+        perror("Error getting owner information");
+        return NULL;
+    }
+
+    // Get group information
+    group_info = getgrgid(file_stat.st_gid);
+    if (group_info == NULL) {
+        perror("Error getting group information");
+        return NULL;
+    }
+
+    // Allocate memory for ownership string
+    size_t ownership_size = strlen(owner_info->pw_name) + strlen(group_info->gr_name) + 2; // +2 for ':' and '\0'
+    char *ownership = (char *)malloc(ownership_size * sizeof(char));
+    if (ownership == NULL) {
+        perror("Memory allocation failed");
+        return NULL;
+    }
+
+    // Format ownership string
+    snprintf(ownership, ownership_size, "%s:%s", owner_info->pw_name, group_info->gr_name);
+
+    return ownership;
+}
 
 /**
  * @brief  This function takes as argument a string and returns its sha256 hashed representation
@@ -297,6 +407,10 @@ void push(file_node** head_ref, char* file_name, char* absolute_path, int PID, i
     new_file->versions_path = NULL;
     new_file->operations_size = 1;
     new_file->operations = (char*)malloc(new_file->operations_size * sizeof(char));
+    new_file->permissions = strdup(get_permissions(absolute_path));
+    new_file->size = get_file_size(absolute_path);
+    new_file->ownership = strdup(get_file_ownership(absolute_path));
+
 
     switch(operation_flag){
         case 0:
@@ -576,6 +690,16 @@ cJSON* dir_tree_to_json(dir_node* root) {
         cJSON_AddStringToObject(file_json, "file_name", file_ptr->file_name);
         cJSON_AddStringToObject(file_json, "file_hash", file_ptr->file_hash);
         cJSON_AddStringToObject(file_json, "absolute_path", file_ptr->absolute_path);
+        cJSON_AddStringToObject(file_json, "permissions", file_ptr->permissions);
+        cJSON_AddStringToObject(file_json, "ownership", file_ptr->ownership );
+        char size_str[100];
+        snprintf(size_str, sizeof(size_str), "%ld", file_ptr->size);
+        cJSON_AddStringToObject(file_json, "size", size_str);
+
+
+
+
+
         // Add file JSON object to files array
         cJSON_AddItemToArray(files_array, file_json);
 

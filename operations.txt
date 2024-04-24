@@ -1,4 +1,4 @@
-WRITE|/home/pbekos/pass.txt|./dir_a/dir_b/dir_c/example.txt
+
 WRITE|/home/pbekos/fail.txt|/home/pbekos/Desktop/100_websites_no_consent_fbpixel.txt
 WRITE|/home/pbekos/Desktop/100_websites_no_consent_fbpixel.txt|/home/pbekos/fail.txt
 WRITE|./dir_a/dir_b/dir_c/example.txt|/home/pbekos/Desktop/test12/test.txt

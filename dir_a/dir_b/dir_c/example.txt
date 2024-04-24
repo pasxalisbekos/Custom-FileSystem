@@ -1,5 +1,1 @@
-random_value:80a custom write function!v
-sav
-vdsv
-sad
-vsv
+Hello, this is a custom write function!Hello, this is a custom write function!Hello, this is a custom write function!
