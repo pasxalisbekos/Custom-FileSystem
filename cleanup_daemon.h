@@ -12,11 +12,14 @@
 #include <time.h>
 
 void list_sub_directories(char *base_directory_path);
-char* list_files_in_directory(char *directory_path);
+void list_files_in_directory(char *directory_path);
 char* most_recent_timestamp(char* timestamp1, char* timestamp2);
 char* extract_timestamp(char* full_string);
 void remove_old_files(char* directory_path, char* most_recent_snapshot);
 void init_cleanup_daemon(int flag ,unsigned int time);
+char* get_most_recent_snapshot(char *directory_path);
 
+
+void get_all_snapshots_for_file(char* file_name);
 
 #endif

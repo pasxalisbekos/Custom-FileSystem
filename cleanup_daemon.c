@@ -86,10 +86,11 @@ void list_sub_directories(char *base_directory_path) {
                 printf("%s/%s\n",base_directory_path, dp->d_name);
                 char* base_line_dir = strdup(append_strings(base_directory_path,"/"));
                 char* absolute_path = strdup(append_strings(base_line_dir,dp->d_name));
-                char* most_recent_snapshot = list_files_in_directory(absolute_path);
-                printf("Most recent snapshot: %s\n", most_recent_snapshot);
+                char* most_recent_snapshot = get_most_recent_snapshot(absolute_path);
+                list_files_in_directory(absolute_path);
+                // printf("Most recent snapshot: %s\n", most_recent_snapshot);
                 printf("=============================================================================================\n");
-                remove_old_files(absolute_path,most_recent_snapshot);
+                // remove_old_files(absolute_path,most_recent_snapshot);
             }
         }
     }
@@ -97,7 +98,29 @@ void list_sub_directories(char *base_directory_path) {
     closedir(dir);
 }
 
-char* list_files_in_directory(char *directory_path) {
+
+
+void get_all_snapshots_for_file(char* file_name){
+
+    char* real_path = strdup(realpath(file_name,NULL));
+    char* baseline_dir = strdup("/home/snapshots/");
+    char* hashed_dir_name = strdup(sha256(real_path));
+    char* snapshot_dir_name = append_strings(baseline_dir,hashed_dir_name);
+    list_files_in_directory(snapshot_dir_name);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void list_files_in_directory(char *directory_path) {
     struct dirent *dp;
     DIR *dir = opendir(directory_path);
     char* recent = "";
@@ -112,6 +135,32 @@ char* list_files_in_directory(char *directory_path) {
     while ((dp = readdir(dir)) != NULL) {
         if (dp->d_type == DT_REG) {
             // printf("%s\n",extract_timestamp(dp->d_name));
+            
+            char* file_name = strdup(dp->d_name);
+            printf("%s\n",file_name);
+        }
+    }
+
+    closedir(dir);
+
+}
+
+char* get_most_recent_snapshot(char *directory_path) {
+    struct dirent *dp;
+    DIR *dir = opendir(directory_path);
+    char* recent = "";
+    char* most_recent_snapshot;
+    // Unable to open directory stream
+    if (!dir) {
+        printf("Unable to open directory %s\n", directory_path);
+        return;
+    }
+
+    int size_counter = 0;
+    while ((dp = readdir(dir)) != NULL) {
+        if (dp->d_type == DT_REG) {
+            // printf("%s\n",extract_timestamp(dp->d_name));
+            
             char* file_name = strdup(dp->d_name);
             char* timestamp = extract_timestamp(dp->d_name);
             if(strlen(recent) == 0){
