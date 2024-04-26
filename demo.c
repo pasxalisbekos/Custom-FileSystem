@@ -84,12 +84,12 @@ int main() {
     // revert_to_previous_version(filename,recent);
     char *filename = "./dir_a/dir_b/dir_c/example.txt";
     char *filename2 = "./dir_a/dir_b/dir_c/example2.txt";
-    char *file_1 = "/home/maryam/pass.txt";
-    char *file_2 = "/home/maryam/fail.txt";
-    char *file_3 = "/home/maryam/Documents/hw2-master/hw2/dtmf_in.txt";
-    char *file_4 = "/home/maryam/Desktop/100_websites_no_consent_fbpixel.txt";
-    char *file_5 = "/home/maryam/Desktop/rerun/grader-s19/requirements.txt";
-    char *file_6 = "/home/maryam/Desktop/test12/test.txt";
+    char *file_1 = "/home/pbekos/pass.txt";
+    char *file_2 = "/home/pbekos/fail.txt";
+    char *file_3 = "/home/pbekos/Documents/hw2-master/hw2/dtmf_in.txt";
+    char *file_4 = "/home/pbekos/Desktop/100_websites_no_consent_fbpixel.txt";
+    char *file_5 = "/home/pbekos/Desktop/rerun/grader-s19/requirements.txt";
+    char *file_6 = "/home/pbekos/Desktop/test12/test.txt";
 
     write_to_file(filename,1);
     sleep(1);
