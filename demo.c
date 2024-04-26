@@ -24,7 +24,7 @@ void write_to_file(char* filename, int flag){
     if (flag == 1) {
         fd = open(filename, O_CREAT | O_WRONLY | O_APPEND, 0777);
     } else if (flag == 0) {
-        fd = open(filename, O_CREAT | O_WRONLY | O_TRUNC, 0777);
+        fd = open(filename, O_CREAT | O_WRONLY , 0777);
     } else {
         perror("Invalid flag");
         return;
@@ -44,7 +44,29 @@ void write_to_file(char* filename, int flag){
     close(fd);
 }
 
+void read_from_file(char* filename){
 
+
+    int fd = open(filename, O_RDONLY);
+    if (fd == -1) {
+        perror("Error opening file for reading");
+        return 1;
+    }
+
+    char buffer[100];
+    ssize_t bytes_read = my_read(filename, fd, buffer, sizeof(buffer), getpid(), 0);
+    if (bytes_read == -1) {
+        perror("Error reading from file");
+        close(fd);
+        return 1;
+    }
+    // printf("====================================================================================================\n");
+    // printf("Read from file: %s\n", buffer);
+    // printf("====================================================================================================\n");
+
+    close(fd);
+
+}
 
 
 int main() {
@@ -71,70 +93,134 @@ int main() {
 
     write_to_file(filename,1);
     sleep(1);
+    read_from_file(file_2);
+    sleep(2);
+    write_to_file(filename,1);
+    sleep(1);
+    write_to_file(filename,1);
+    sleep(1);
+    write_to_file(filename,1);
+    sleep(2);
+    read_from_file(file_6);
+    sleep(1);
+    write_to_file(filename,1);
+    sleep(1);
+    read_from_file(file_2);
+    sleep(2);
+    read_from_file(file_3);
+    sleep(2);
     write_to_file(filename,1);
     sleep(1);
     write_to_file(filename,1);
     sleep(1);
     write_to_file(filename,1);
     sleep(1);
+    read_from_file(filename);
+    sleep(2);
     write_to_file(filename,1);
-    sleep(1);
-    write_to_file(filename,1);
-    sleep(1);
-    write_to_file(filename,1);
-    sleep(1);
-    write_to_file(filename,1);
-    sleep(1);
-    write_to_file(filename,1);
+    sleep(2);
     write_to_file(file_1,1);
-    // sleep(5);
+    sleep(5);
     write_to_file(file_2,0);
-    // sleep(3);
+    sleep(2);
+    read_from_file(filename);
+    sleep(3);
     write_to_file(file_5,1);
-    // sleep(10);
+    sleep(10);
+    read_from_file(file_1);
+    sleep(2);
+    read_from_file(filename2);
+    sleep(2);
+    read_from_file(filename2);
+    sleep(2);
     write_to_file(file_3,1);
+    sleep(2);
+    read_from_file(filename);
+    sleep(2);
     write_to_file(filename2,1);
-    // sleep(9);
+    sleep(9);
+    read_from_file(filename);
     write_to_file(file_4,0);
-    // sleep(1);
+    sleep(1);
     write_to_file(file_5,0);
-    // sleep(8);
+    read_from_file(file_1);
+    sleep(8);
     write_to_file(file_2,1);
-    // sleep(2);
+    sleep(2);
+    read_from_file(filename);
+    sleep(2);
+    read_from_file(filename2);
+    sleep(2);
+    read_from_file(filename2);
+    sleep(2);
     write_to_file(file_6,1);
+    sleep(2);
     write_to_file(filename,1);
+    sleep(2);
+    read_from_file(filename);
+    sleep(2);
+    read_from_file(file_2);
+    sleep(2);
     write_to_file(filename,1);
+    sleep(2);
+    read_from_file(file_1);
+    sleep(2);
     write_to_file(file_1,0);
-    // sleep(5);
+    sleep(5);
     write_to_file(file_2,1);
-    // sleep(3);
+    sleep(2);
+    read_from_file(filename);
+    sleep(3);
     write_to_file(file_5,1);
-    // sleep(10);
+    sleep(2);
+    read_from_file(filename);
+    sleep(10);
     write_to_file(file_3,0);
-    // sleep(9);
+    sleep(9);
+    read_from_file(filename);
+    sleep(2);
     write_to_file(file_4,1);
     sleep(1);
     write_to_file(file_5,0);
-    // sleep(8);
+    sleep(2);
+    read_from_file(file_2);
+    sleep(8);
     write_to_file(file_2,1);
+    sleep(2);
     write_to_file(filename2,0);
-    // sleep(2);
+    sleep(2);
+    read_from_file(filename);
+    sleep(2);
     write_to_file(file_6,1);
+    sleep(2);
     write_to_file(filename,1);
-    // sleep(2);
+    sleep(2);
     write_to_file(filename,1);
-    // sleep(2);
+    sleep(2);
+    read_from_file(filename);
+    sleep(2);
+    sleep(2);
     write_to_file(filename,0);
-    // sleep(2);
-    write_to_file(filename,0);
-    // sleep(2);
-    write_to_file(filename,1);
-    // sleep(2);
-    write_to_file(filename,1);
-    // int x = extract_tree_to_json();
+    sleep(2);
+    read_from_file(filename);
+    sleep(2);
+    read_from_file(file_2);
+    sleep(2);
+    write_to_file(file_1,0);
+    sleep(2);
+    write_to_file(file_1,1);
+    sleep(2);
+    read_from_file(file_1);
+    sleep(2);
+    write_to_file(file_1,1);
+    sleep(2);
+    read_from_file(filename);
 
 
+    
     end();
 
     return 0;
 }
+
+

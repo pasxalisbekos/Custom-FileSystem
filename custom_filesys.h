@@ -82,7 +82,7 @@ extern dir_node* directory_tree_head;
 
 
 ssize_t my_write(char* filepath, int fd, const void *buf, size_t count, int PID, operation_type type);
-ssize_t my_read(char* filepath, int fd, void *buf, size_t count, int PID);
+ssize_t my_read(char* filepath, int fd, void *buf, size_t count, int PID, operation_type type);
 // --------------------------------------------------------------------- HELPER FUNCTIONS --------------------------------------------------------------------- //
 char* get_last_element(char** array);
 char** str_split(char* file_path, const char delimeter);
