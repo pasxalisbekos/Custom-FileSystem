@@ -10,6 +10,8 @@
 #include <sys/types.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
+
 
 void list_sub_directories(char *base_directory_path);
 void list_files_in_directory(char *directory_path);
@@ -21,5 +23,8 @@ char* get_most_recent_snapshot(char *directory_path);
 
 
 void get_all_snapshots_for_file(char* file_name);
+char* get_snapshot(char* directory, char* snapshot_name);
+char* get_most_recent_snapshot_for_file(char* file_path);
+int revert_to_previous_version(char* current_file_path, char* most_recent_snapshot);
 
 #endif

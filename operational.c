@@ -24,6 +24,10 @@ void update_curr_path(char* new_path){
  void custom_signal_handler(int signum) {
     printf("Caught signal %d| Operation path: %s\n", signum, current_path);
     //after here we have to find the nodes and release their locks
+
+
+
+
     exit(signum);
 }
 

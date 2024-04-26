@@ -1,10 +1,91 @@
 #include "custom_filesys.h"
-#include "log.h"
 
 dir_node* directory_tree_head = NULL;
+char* current_file_path_operated_on = NULL;
+
 
 pthread_spinlock_t json_tree_lock;
 int is_tree_json_lock_initialized = 0;
+
+
+char* real_path(char* filepath){
+    return realpath(filepath,NULL);
+}
+
+void end(){
+    int result = extract_tree_to_json();
+
+    if(result != 0){
+        printf("Could not write tree to JSON\n");
+    }
+}
+
+/**
+ * @brief This is the global signal handler that each thread using our custom write/read should first initiallize it. Upon a crash
+ * we must be able to preserve the current status of the system (write the tree directory to the JSON file)
+ *
+ * @param signum : The signal number (e.g. seg fault: 11)
+ */
+ void custom_signal_handler(int signum) {
+    printf("Caught signal [ %d ]| Operation path: {%s}\n", signum, current_file_path_operated_on);
+    
+    char* most_recent_snap = get_most_recent_snapshot_for_file(current_file_path_operated_on);
+    printf("Most recent snapshot path : [   %s  ]\n",most_recent_snap);
+
+
+    // Ask for user input on what to do with the file
+    char input;
+    printf("Revert to previous snapshot? (y/n): ");
+    scanf(" %c", &input); // Note the space before %c to consume any leading whitespace
+    // Flush remaining characters in input buffer
+    while (getchar() != '\n');
+
+    while (input != 'y' && input != 'n') {
+        printf("Invalid input. Please enter 'y' for yes or 'n' for no: ");
+        scanf(" %c", &input);
+        
+        // Flush remaining characters in input buffer
+        while (getchar() != '\n');
+    }
+
+    if (input == 'y'){
+        int revert_flag = revert_to_previous_version(current_file_path_operated_on,most_recent_snap);
+        if (revert_flag == 0){
+            printf(" > Rollback successfull\n * Exiting gracefully\n");
+            //store the json and any other file remaining
+            extract_tree_to_json();
+        }else{
+            printf("Rollback failed with status {%d}\n",revert_flag);
+        }
+    }
+
+    exit(signum);
+}
+
+/**
+ * @brief This is the initializer function for our signal handler. It sets up our handler for the following signals
+ *  1) SIGKILL : Process killed
+ *  2) SIGSEGV : Segmentation fault
+ *  3) SIGABRT : Abort signal
+ *  4) SIGILL  : Illegal instruction
+ *  5) SIGFPE  : Floating point exception
+ *  Those are some initial signals that our implementation is handling, any addition for a new signal should be written inside
+ *  this function.
+ */
+void handler_init(){
+    // Setting up our signal handler for all those signals
+    signal(SIGKILL, custom_signal_handler); 
+    signal(SIGSEGV, custom_signal_handler); 
+    signal(SIGABRT, custom_signal_handler); 
+    signal(SIGILL,  custom_signal_handler); 
+    signal(SIGFPE,  custom_signal_handler);  
+    signal(SIGTERM,  custom_signal_handler); 
+    signal(SIGINT,  custom_signal_handler); 
+}
+
+
+
+
 // --------------------------------------------------------------------- HELPER FUNCTIONS --------------------------------------------------------------------- //
 /**
  * @brief Get the permissions of a file as a string representation
@@ -256,6 +337,23 @@ char* current_timestamp_as_string() {
     strftime(timestamp, MAX_TIMESTAMP_LENGTH, "%Y-%m-%d_%H:%M:%S", time_info);
 
     return timestamp;
+
+    // Timestamp in ms depth
+
+    // struct timeval tv;
+    // struct tm* time_info;
+    // static char timestamp[MAX_TIMESTAMP_LENGTH];
+
+    // gettimeofday(&tv, NULL);
+    // time_info = localtime(&tv.tv_sec);
+
+    // // Format the time as a string
+    // snprintf(timestamp, MAX_TIMESTAMP_LENGTH, "%04d-%02d-%02d_%02d:%02d:%02d:%03ld",
+    //          time_info->tm_year + 1900, time_info->tm_mon + 1, time_info->tm_mday,
+    //          time_info->tm_hour, time_info->tm_min, time_info->tm_sec,
+    //          tv.tv_usec / 1000);
+
+    // return timestamp;
 }
 
 /**
@@ -1046,6 +1144,10 @@ ssize_t my_write(char* file_path, int fd, const void *buf, size_t count, int PID
 
 
     char* full_path = realpath(file_path,NULL);
+
+    current_file_path_operated_on = strdup(full_path);
+
+    
     printf("Process :%d wrting on %s at [%s]\n",PID,file_path,current_timestamp_as_string());
     if(full_path == NULL){
         printf("No such file or directory %s\n",full_path);

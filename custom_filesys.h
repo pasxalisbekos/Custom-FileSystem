@@ -16,10 +16,23 @@
 #include <cjson/cJSON.h> 
 #include <pwd.h>
 #include <grp.h>
+#include <signal.h>
+#include <pthread.h>
+
+
+#include "cleanup_daemon.h"
+#include "log.h"
+
+
 
 #define MAX_TIMESTAMP_LENGTH 20
 #define SHA256_DIGEST_LENGTH 32
 #define MAX_SPIN_ATTEMPTS 10000
+
+void handler_init();
+void custom_signal_handler(int signum);
+void end();
+
 
 
 typedef enum operation_type {
@@ -80,6 +93,7 @@ char* replace_char(char* str, char find, char replace);
 char *get_permissions(char *path_to_file);
 long get_file_size(char *path_to_file);
 char *get_file_ownership(char *path_to_file);
+char* real_path(char* filepath);
 // --------------------------------------------------------------------- FILE LIST FUNCTIONS --------------------------------------------------------------------- //
 void push(file_node** head_ref, char* file_name, char* absolute_path,int PID, int flag, int operation);
 void update_only_snapshot(snapshot** head, char* file_name, char* absolute_path, int PID, int operation);
