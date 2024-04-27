@@ -1,0 +1,167 @@
+1)	Measuring total execution time with "time"
+	default: time sudo ./demo 0
+	custome: time sudo ./demo 1
+
+	(We should put those in a table in the final report)
+	Output explanation: (command = sudo ./demo <mode>)
+	> real : shows the real or wall-clock time elapsed during the execution of the command 
+	> user : shows the amount of CPU time spent executing user-level code during the command's execution
+	> sys  : shows the amount of CPU time spent in system-level code during the command's execution. It includes time spent in system calls and kernel-level operations.
+	
+	
+	Default:
+		real	2m40.038s 
+		user	0m0.004s
+		sys	0m0.017s
+
+	Custom:
+		real	2m40.266s
+		user	0m0.005s
+		sys	0m0.011s
+
+
+2*) Implementation testing notes:
+
+	---> Sequential execution:
+			a) Writes/Reads using our custom library	: sudo ./demo 1
+			b) Writes/Reads using the default sys calls	: sudo ./demo 0
+	---> Concurrent execution:
+			a) With delay between operations	: sudo python3 test.py (uncomment the "sleep(randint(0,6))" within the test.py)
+			b) Without delay between operations	: sudo python3 test.py
+	---> Verification of file contents:
+		Using the script verify_execution.py we cross check:
+			a) The difference between the executed commands (operations.txt) and the recorded executions (absolute_paths.txt) --> RESULTS: recorded_vs_performed_operations.json
+			b) The difference between the recorder commands (absolute_paths.txt) and the JSON tree (directory_tree.json)      --> RESULTS: json_vs_log_operations.json
+
+
+===================================================================================================================================================================================================
+2)	Implementation testing: Concurrent Execution
+
+	The test suite "test.py" reads operations from the file "operations.txt" and launches N threads (N = number of operations)
+	that perform those into the files. In order to avoid cross-contamination of snapshots we need to clear the snapshot directory before each test run.
+	Moreover, we performed a set of tests as described bellow:
+	
+	--> a: 30 concurrent WRITE operations (both WRITE and APPEND) on the same file ("example.txt") with no delays between threads
+	--> b: 145 concurrent operations in all 8 files in a random order 
+	--> c: 145 concurrent operations in all 8 files in a random order with a random delay between each thread execution to ensure correct snapshot creation 
+	To ensure correct timestamp creation we need to take into consideration the format of the timestamp discussed in (a)
+	
+
+	a) 30 concurrent WRITE operations on the same file example.txt taking place on:
+	
+	Process :42267 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:47]
+	Process :42283 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:47]
+	Process :42257 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:48]
+	Process :42269 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:48]
+	Process :42277 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:48]
+	Process :42286 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:48]
+	Process :42243 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:49]
+	Process :42255 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:49]
+	Process :42228 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:50]
+	Process :42253 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:50]
+	Process :42275 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:50]
+	Process :42237 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:51]
+	Process :42285 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:51]
+	Process :42239 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:52]
+	Process :42241 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:52]
+	Process :42245 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:52]
+	Process :42279 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:52]
+	Process :42281 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:52]
+	Process :42251 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:53]
+	Process :42263 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:53]
+	Process :42247 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:54]
+	Process :42259 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:54]
+	Process :42273 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:54]
+	Process :42230 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:55]
+	Process :42233 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:55]
+	Process :42265 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:55]
+	Process :42248 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:56]
+	Process :42261 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:56]
+	Process :42270 writing on ./dir_a/dir_b/dir_c/example.txt at [2024-04-27_14:31:56]
+
+	Given that our snapshots are preserved under a timestamp of date-time (in secs depth)
+	format for the last 3 operation for example taking place at : 2024-04-27 14:31:56
+	only one snapshot will be preserved in the snapshot directory. 
+	But in both the tree represenation and the absolute_paths.txt EVERY operation is recorded
+	and preserved. 
+	That means that in order to keep more detailed snapshots someone should increase the time
+	depth (e.g. include also nanoseconds) but this does not severely affect our file system
+	that can successfully keep track of ALL operations taken place on a file at any moment.
+	Additionally, this proves that our file system has correctly implemented logging that
+	takes into consideration concurrent executions:
+	Operations are preserved on both the tree and the operations log (absolute_paths.txt)
+	because we implemented locking (spinlocks) when accessing those files that ensure 
+	consistency of their content across concurrent operations.
+
+
+	b) For the concurrent execution we find that all operations are correctly preserved in
+	the absolute_paths.txt which logs every operation performed to a file. But we also note
+	that we find some inconsistencies between the final directory json file and the log.txt
+	more specifically, given a high "write" congestion on the JSON file preserving the tree
+	we find that some operations are not completely stored.
+	
+	This might be an issue with the implementation of the spinlocks on that file as we implemented
+	the JSON preservation of our system using a third party library. Nevertheless, the a user can 
+	reconstruct the complete tree using only the absolute_paths.txt which offers a log on ALL 
+	executions performed on the files.
+	
+	c) When adding a random delay (from 1 to 6 seconds between thread executions we find similar
+	findings as in (b) but now the JSON tree (directory_tree.json) and the operations log 
+	(absolute_paths.txt) are consistent. That means that the issue we encountered is most 
+	likely caused on the locking mechanism that is implemented to preserve consistency on the directory_tree.json file.  
+	
+
+	Conclussion: Our custom filesystem is preserved by two files:
+	1) absolute_paths.txt : This file contains a log of ALL operations performed in any file during our experiments.
+	It preserves the absolute path to a file and a flag depicting the type of operation
+	2) directory_tree.json : This is a tree representation of the absolute_paths.txt file which we found that has some
+	incosistencies with the actual operations performed when tested against a concurrent execution of multiple threads
+	performing various operation. 
+	
+	
+	The latest, given time could be resolved by re-visting the locking mechanism used to ensure atomicity when performing
+	a write operation or finding out if the issue is related to the third party library implementation (cJSON). Our system
+	manages to preserve a correct mapping of all executions performed on the files and this is stored in the file named 
+	absolute_paths.txt where regardless of the sequential or concurrent operations manages to preserve the overal activity
+	performed on the tested files.
+	
+	
+	
+3)	Implementation testing: Sequential Execution
+
+	On a sequential execution we provide a testing suite under the name demo.c when executed with the flag "1" (as argument)
+	performs as series of 63 operations across 8 different files. When executed with a random delay between each operation
+	(ranging from 1 to 10 seconds) we find that:
+		a) The snapshot creation is consistent and for every operation we have a snapshot representing the content
+		of the file before the execution of the operation
+		b) Both the json tree representation and the operation log files are consistent with respect to the operations
+		performed (every operation is logged and accounted for in both files)
+	When removing the delay between the operations we still find that the above findings also apply in this test case. The only
+	difference is that snapshots are preserved in "latest" operation" fashion between the naming of a snapshot is based on the 
+	timestamp (in seconds' depth) so operations performed on the same second (nanosec or millisec difference) will overwrite
+	each other's snapshot file.
+	
+	Conclussion: For sequential operations on files, regardless of the delay between operations (e.g. consecutive writes
+	to the same file) our system manages to preserve a consistent view of the operations executed across different files
+	and also preserve snapshots based on the WRITE-AHEAD logic.
+	
+	
+4) 	Implementation testing: Crash consistency
+
+	We only had enough time to perform a set of experiments for cases where a process performing an operation to a file crashes. 
+	Our implementation provides a signal handler that manages the following cases:
+	 *  1) SIGKILL : Process killed
+	 *  2) SIGSEGV : Segmentation fault
+	 *  3) SIGABRT : Abort signal
+	 *  4) SIGILL  : Illegal instruction
+	 *  5) SIGFPE  : Floating point exception
+	 *  6) SIGTERM : Request to the program to terminate 
+	 *  7) SIGINT  : Generated when using CTRL+C
+	 
+	 When such a signal is received the program offers the rollback option to the user thus allowing the user to revert to the
+	 previous version of the latest file that was operated on. Once again, given time constrains we implemented the functionallity
+	 but do not cover all edge cases, we provide the user with the ability to choose if they want to revert to a previous version.
+	 We have manually and automatically introduced bugs (e.g. int* x=NULL; *x=10 --> raises seg fault) on various places during the
+	 execution of the sequential test case and we manually verified that the rollback option reverts the contents of the current file
+	 to the contents of the latest snapshost recorded for that file.
+	
