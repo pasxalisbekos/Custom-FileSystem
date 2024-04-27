@@ -18,13 +18,12 @@ ssize_t my_write_temp(char* filename, int fd, const char *buf, size_t count, pid
     } else {
         return -1; // Invalid mode
     }
-    return my_write(filename, fd, (const char*)buf, strlen(buf), getpid(), mode);
+    my_write(filename, fd, (const char*)buf, strlen(buf), getpid(), mode);
 }
 
-void write_to_file(char* filename, char* new_val, int flag){
+void write_to_file(char* filename, int flag){
     int fd;
     if (flag == 1) {
-
         fd = open(filename, O_CREAT | O_WRONLY | O_APPEND, 0777);
     } else if (flag == 0) {
         fd = open(filename, O_CREAT | O_WRONLY , 0777);
@@ -38,44 +37,61 @@ void write_to_file(char* filename, char* new_val, int flag){
         return;
     }
 
-    // const char *str = "Hello, this is a custom write function!";
-    ssize_t bytes_written = my_write_temp(filename, fd, (const char*)new_val, strlen(new_val), getpid(),(flag == 1) ? APPEND : WRITE);
+    const char *str = "Hello, this is a custom write function!\n";
+    ssize_t bytes_written = my_write_temp(filename, fd, str, strlen(str), getpid(), (flag == 1) ? APPEND : WRITE);
     if (bytes_written == -1) {
         perror("Error writing to file");
     }
-
     close(fd);
 }
 
+void read_from_file(char* filename){
 
+
+    int fd = open(filename, O_RDONLY);
+    if (fd == -1) {
+        perror("Error opening file for reading");
+        return 1;
+    }
+
+    char buffer[100];
+    ssize_t bytes_read = my_read(filename, fd, buffer, sizeof(buffer), getpid(), 0);
+    if (bytes_read == -1) {
+        perror("Error reading from file");
+        close(fd);
+        return 1;
+    }
+
+    close(fd);
+
+}
 
 int main(int argc, char *argv[]) {
     
-    // init(getpid());
+    handler_init();
 
-    srand((unsigned int)time(NULL));
-    int delay = rand() % 11; // rand() % (max + 1)
-    // printf("%s\n",argv[4]);
-    if (argc == 6){
+    if (argc == 7){
         char* destination = strdup(argv[3]);
         char* new_val = strdup(argv[4]);
         int operation_flag = atoi(argv[5]);
+        int delay = atoi(argv[6]);
         printf("Process with PID: [%d] and random delay {%d} will perform operation [%d] to file: %s the value: %s\n",getpid(),delay,operation_flag,destination,new_val);
         // sleep(delay);
-        write_to_file(destination,new_val,operation_flag);
-        tree_write();
-
-        
+        write_to_file(destination,operation_flag);
     }   
-    // Generate a random number between 0 and 10
-    // int delay = rand() % 11; // rand() % (max + 1)
+    else if (argc == 4){
+        char* destination = strdup(argv[2]);
+        int delay = atoi(argv[3]);
+        printf("Process with PID: [%d] and random delay {%d} will perform read from file: %s\n",getpid(),delay,destination);
+        // sleep(delay);
+        read_from_file(destination);
+    }
+    else{
+        printf("Unknown arguments\n Exiting...\n");
+        return 0;
+    }
+    end();
 
-    // printf("Sleeping for %d seconds...\n", delay);
-    // sleep(delay);
-
-    // printf("Wake up!\n");
-
-    // extract_tree_to_json();
-    // end(getpid());
     return 0;
+
 }

@@ -13,11 +13,11 @@ char* real_path(char* filepath){
 }
 
 void end(){
-    int result = extract_tree_to_json();
+    tree_write();
 
-    if(result != 0){
-        printf("Could not write tree to JSON\n");
-    }
+    // if(result != 0){
+    //     printf("Could not write tree to JSON\n");
+    // }
 }
 
 /**
@@ -27,6 +27,12 @@ void end(){
  * @param signum : The signal number (e.g. seg fault: 11)
  */
  void custom_signal_handler(int signum) {
+    
+    if(current_file_path_operated_on == NULL){
+        printf("No file was operated when receiving signal {%d}, exiting...\n",signum);
+        exit(signum);
+    }
+    
     printf("Caught signal [ %d ]| Operation path: {%s}\n", signum, current_file_path_operated_on);
     
     char* most_recent_snap = get_most_recent_snapshot_for_file(current_file_path_operated_on);
@@ -69,6 +75,8 @@ void end(){
  *  3) SIGABRT : Abort signal
  *  4) SIGILL  : Illegal instruction
  *  5) SIGFPE  : Floating point exception
+ *  6) SIGTERM : Request to the program to terminate 
+ *  7) SIGINT  : Generated when using CTRL+C
  *  Those are some initial signals that our implementation is handling, any addition for a new signal should be written inside
  *  this function.
  */
@@ -563,18 +571,18 @@ void push(file_node** head_ref, char* file_name, char* absolute_path, int PID, i
 
 
 
-    char command[1024];
-    snprintf(command, sizeof(command), "cat '%s'", absolute_path);
+    // char command[1024];
+    // snprintf(command, sizeof(command), "cat '%s'", absolute_path);
 
-    // Execute the command
-    int result = system(command);
-    if (result == -1) {
-        perror("Error executing command");
-        return -1;
-    } else if (result != 0) {
-        printf("Failed to execute command.\n");
-        return -1;
-    }
+    // // Execute the command
+    // int result = system(command);
+    // if (result == -1) {
+    //     perror("Error executing command");
+    //     return -1;
+    // } else if (result != 0) {
+    //     printf("Failed to execute command.\n");
+    //     return -1;
+    // }
     char* snapshot_dir = create_snapshot(file_name,absolute_path,curr_timestamp);
     // printf("%s\n",snapshot_dir);
     new_file->snapshot = (snapshot*)malloc(sizeof(snapshot));
@@ -583,29 +591,27 @@ void push(file_node** head_ref, char* file_name, char* absolute_path, int PID, i
     new_file->snapshot->PID = PID;
     new_file->snapshot->next = NULL;
 
-    printf("%s\n",new_file->snapshot->snapshot_path);    
-    // printf("%c\n",new_file->operations[new_file->operations_size]);
-    // if (new_file->operations[0] != 'R'){
-    //     // Initially just store the path to the snapshots and the timestamp
-    //     char* snapshot_dir = create_snapshot(file_name,absolute_path,curr_timestamp);
-    //     // printf("%s\n",snapshot_dir);
-    //     new_file->snapshot = (snapshot*)malloc(sizeof(snapshot));
-    //     new_file->snapshot->snapshot_path = strdup(snapshot_dir);
-    //     new_file->snapshot->timestamp = strdup(curr_timestamp);
-    //     new_file->snapshot->PID = PID;
-    //     new_file->snapshot->next = NULL;
+    if (new_file->operations[0] != 'R'){
+        // Initially just store the path to the snapshots and the timestamp
+        char* snapshot_dir = create_snapshot(file_name,absolute_path,curr_timestamp);
+        // printf("%s\n",snapshot_dir);
+        new_file->snapshot = (snapshot*)malloc(sizeof(snapshot));
+        new_file->snapshot->snapshot_path = strdup(snapshot_dir);
+        new_file->snapshot->timestamp = strdup(curr_timestamp);
+        new_file->snapshot->PID = PID;
+        new_file->snapshot->next = NULL;
 
-    // }else{
-    //     char* baseline_dir = strdup("/home/snapshots/");
-    //     char* hashed_dir_name = strdup(sha256(absolute_path));
-    //     char* snapshot_dir = append_strings(baseline_dir,hashed_dir_name);
+    }else{
+        char* baseline_dir = strdup("/home/snapshots/");
+        char* hashed_dir_name = strdup(sha256(absolute_path));
+        char* snapshot_dir = append_strings(baseline_dir,hashed_dir_name);
 
-    //     new_file->snapshot = (snapshot*)malloc(sizeof(snapshot));
-    //     new_file->snapshot->snapshot_path = strdup(snapshot_dir);
-    //     new_file->snapshot->timestamp = strdup(curr_timestamp);
-    //     new_file->snapshot->PID = PID;
-    //     new_file->snapshot->next = NULL;
-    // }
+        new_file->snapshot = (snapshot*)malloc(sizeof(snapshot));
+        new_file->snapshot->snapshot_path = strdup(snapshot_dir);
+        new_file->snapshot->timestamp = strdup(curr_timestamp);
+        new_file->snapshot->PID = PID;
+        new_file->snapshot->next = NULL;
+    }
 
     new_file->next = *head_ref;
     
