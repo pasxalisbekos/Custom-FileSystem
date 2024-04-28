@@ -14,10 +14,6 @@ char* real_path(char* filepath){
 
 void end(){
     tree_write();
-
-    // if(result != 0){
-    //     printf("Could not write tree to JSON\n");
-    // }
 }
 
 /**
@@ -58,13 +54,14 @@ void end(){
         int revert_flag = revert_to_previous_version(current_file_path_operated_on,most_recent_snap);
         if (revert_flag == 0){
             printf(" > Rollback successfull\n * Exiting gracefully\n");
-            //store the json and any other file remaining
-            extract_tree_to_json();
+            // store the json and any other file remaining
+            // extract_tree_to_json();
         }else{
             printf("Rollback failed with status {%d}\n",revert_flag);
         }
     }
-
+    
+    extract_tree_to_json();
     exit(signum);
 }
 

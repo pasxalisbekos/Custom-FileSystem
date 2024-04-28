@@ -82,15 +82,14 @@ void list_sub_directories(char *base_directory_path) {
     while ((dp = readdir(dir)) != NULL) {
         if (dp->d_type == DT_DIR) {
             if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0) {
-                printf("=============================================================================================\n");
-                printf("%s/%s\n",base_directory_path, dp->d_name);
+                // printf("=============================================================================================\n");
+                // printf("%s/%s\n",base_directory_path, dp->d_name);
                 char* base_line_dir = strdup(append_strings(base_directory_path,"/"));
                 char* absolute_path = strdup(append_strings(base_line_dir,dp->d_name));
                 char* most_recent_snapshot = get_most_recent_snapshot(absolute_path);
-                list_files_in_directory(absolute_path);
-                
-                printf("=============================================================================================\n");
-                // remove_old_files(absolute_path,most_recent_snapshot);
+                // list_files_in_directory(absolute_path);
+                // printf("=============================================================================================\n");
+                remove_old_files(absolute_path,most_recent_snapshot);
             }
         }
     }
@@ -236,21 +235,21 @@ void init_cleanup_daemon(int flag ,unsigned int time){
 
     unsigned int seconds;
     switch(flag) {
-        case 0:
+        case 1:
             printf("Flag is set to seconds [%u]\n", time);
             sleep(time);
             break;
-        case 1:
+        case 2:
             printf("Flag is set to hours [%u]\n", time);
             seconds = time * 3600;
             sleep(seconds);
             break;
-        case 2:
+        case 3:
             printf("Flag is set to days [%u]\n", time);
             seconds = time * 24 * 3600;
             sleep(seconds);
             break;
-        case 3:
+        case 4:
             printf("Flag is set to months [%u] (?)\n", time);
             seconds = time * 30 * 24 * 3600;
             sleep(seconds);
@@ -259,8 +258,9 @@ void init_cleanup_daemon(int flag ,unsigned int time){
             printf("Flag is unrecognised [%d]. Switching to default timelapse of 2 hours for cleanup\n",flag);
     }
 
+    printf("Cleanup operation starting...\n");
     list_sub_directories("/home/snapshots");
-
+    printf("Cleanup operation finished...\n");
 }
 
 
