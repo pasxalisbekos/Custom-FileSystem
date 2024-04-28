@@ -173,7 +173,7 @@ def verify_json_tree_consistency(json_tree_path):
             print(json_ops)
             print(rec_ops)
             print("==================================================================================================")
-            if(set(json_ops) == set(rec_ops)):
+            if((json_ops) == (rec_ops)):
                 print("Operations performed and logged for file : {"+ file_name+"} are the same")
             else:
                 print("Incosistency on recorded paths on json tree and execution log for file: {"+file_name+"}")
