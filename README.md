@@ -2,6 +2,13 @@
 
 ## Overview
 Our custom user-level C application facilitates read/write operations on files within a custom file system while preserving their contents and recording all operations in a tree-like data structure representing the system's state.
+The current implementation was tested in UNIX based systems operating Ubuntu 22.04. Additional packages required:
+- **pthreads**: sudo apt-get install libpthread-stubs0-dev
+- **cJSON library**: sudo apt install libjson-c-dev
+
+
+Please make sure you create a directory named "snapshots" on the /home directory where all snapshot directories and log files will be stored. Make sure to run the provided code with sudo permissions because it requires write acfess to files located at the "/home" (read-only) directory. 
+
 
 ## Features
 
