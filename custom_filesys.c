@@ -14,27 +14,27 @@ char* real_path(char* filepath){
 
 void end(){
 
-    // directory_tree_head = NULL;
-    // int line_count = 0;
-    // char** prev_paths = read_absolute_paths(&line_count);
+    directory_tree_head = NULL;
+    int line_count = 0;
+    char** prev_paths = read_absolute_paths(&line_count);
     
-    // if(prev_paths != NULL){
-    //     // printf("================================================================================================\n");
-    //     // printf("%d\n",line_count);
-    //     for(int i=0; i < line_count; i++){
-    //         // printf("----------> %s\n",prev_paths[i]);
-    //         char** path_split = str_split(prev_paths[i],'|');
+    if(prev_paths != NULL){
+        // printf("================================================================================================\n");
+        // printf("%d\n",line_count);
+        for(int i=0; i < line_count; i++){
+            // printf("----------> %s\n",prev_paths[i]);
+            char** path_split = str_split(prev_paths[i],'|');
             
-    //         // Get the path to the file from the absolute_paths.txt
-    //         char* path = realpath(path_split[0],NULL);
-    //         // Get the corresponding operation performed on that file
-    //         int operation = atoi(path_split[1]);
-    //         // printf("FOUND PREVIOUS OPERATION: %d ON FILE: %s\n",operation,path);
-    //         add_directory_to_tree(path,getpid(), 0, operation);
-    //     }
-    //     // printf("================================================================================================\n");
+            // Get the path to the file from the absolute_paths.txt
+            char* path = realpath(path_split[0],NULL);
+            // Get the corresponding operation performed on that file
+            int operation = atoi(path_split[1]);
+            // printf("FOUND PREVIOUS OPERATION: %d ON FILE: %s\n",operation,path);
+            add_directory_to_tree(path,getpid(), 0, operation);
+        }
+        // printf("================================================================================================\n");
 
-    // } 
+    } 
     tree_write();
 }
 
